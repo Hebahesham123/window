@@ -150,6 +150,88 @@ h1,h2{margin:0;font-weight:800}
 .scalebox .tip{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.6}
 #ar{position:fixed;inset:0;z-index:95;display:none;pointer-events:none} #ar.on{display:block}
 #ar .t,#ar .b{pointer-events:auto}
+.hscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ==================== الموبايل ==================== */
+@media (max-width:760px){
+  body{font-size:15px}
+  .pad{padding:8px 8px 96px}
+  .bar .in{padding:7px 10px}
+  .tabs{padding:0 8px;gap:4px}
+  .tabs button{font-size:11.5px;padding:9px 2px}
+  .sheet{padding:9px;border-width:1.2px;box-shadow:none;margin-bottom:14px}
+  .msg,.key,.foot,.hero,.ways,.alt,#work{max-width:none}
+
+  /* رأس الورقة */
+  .head{flex-wrap:wrap;gap:6px}
+  .head .ttl{order:-1;width:100%;font-size:15px;padding:7px}
+  .head .side{min-width:0;flex:1 1 44%}
+  .head .logo{min-width:0;flex:1 1 44%;font-size:10px}
+  .nbox span{font-size:10px;padding:3px 5px}
+
+  /* الجداول اللي اسم/قيمة → تحت بعض */
+  .sheet table.kvm,.sheet table.kvm tbody,.sheet table.kvm tr,.sheet table.kvm td{
+    display:block;width:auto!important}
+  .sheet table.kvm{border:1px solid var(--line);table-layout:auto}
+  .sheet table.kvm tr{border-bottom:1px solid var(--line)}
+  .sheet table.kvm tr:last-child{border-bottom:0}
+  .sheet table.kvm td{border:0;padding:0}
+  .sheet table.kvm td.lbl{background:transparent;padding:7px 9px 2px;font-size:11.5px;
+    color:var(--mut);text-align:right;white-space:normal}
+  .sheet table.kvm td:not(.lbl){padding:0 9px 8px}
+  .sheet table.kvm td:not(.lbl) > input,
+  .sheet table.kvm td:not(.lbl) > select,
+  .sheet table.kvm td:not(.lbl) > textarea{
+    border:1px solid var(--line);border-radius:8px;min-height:42px;background:#fff;text-align:right}
+  .sheet table.kvm td.r > input{text-align:right}
+  .sheet table.kvm .ckrow{padding:2px 9px 8px;gap:9px}
+  .ck{font-size:13px} .ck i{width:17px;height:17px;font-size:12px}
+
+  /* جدول القماش → كارت لكل خامة */
+  #fab thead{display:none}
+  #fab,#fab tbody,#fab tr,#fab td{display:block;width:auto!important}
+  #fab{border:0;table-layout:auto}
+  #fab tr{border:1.4px solid var(--line);border-radius:9px;margin-bottom:9px;padding:5px 4px;background:#fff}
+  #fab td{border:0;display:flex;align-items:center;gap:8px;padding:3px 5px}
+  #fab td::before{content:attr(data-l);flex:0 0 92px;font-size:11.5px;font-weight:700;
+    color:var(--mut);text-align:right}
+  #fab td > input,#fab td > select{flex:1;width:auto;border:1px solid var(--line);
+    border-radius:7px;min-height:40px;background:#fff}
+  #fab td[data-c]{background:transparent;font-size:13px;padding:5px}
+  #fab td[data-c]::before{color:var(--mut)}
+  #fab td[data-c].calc{color:var(--auto);font-weight:800;font-size:16px}
+  #fab td[data-c].calc.pend{color:var(--need);font-size:12px;font-weight:700}
+  #fab td > select[data-k="gather"],#fab td > select[data-k="finish"],
+  #fab td > select[data-k="heavy"]{margin-top:5px}
+  #fab td[data-l="تطريز · تهديل"]{flex-wrap:wrap}
+  #fab td > button[data-del]{flex:0 0 100%;margin-top:6px;min-height:34px;border:1px solid var(--line)!important;border-radius:7px!important}
+
+  /* الإكسوار والطقة: تمرير أفقي */
+  #acc,#tok{min-width:640px}
+
+  /* منطقة القياس */
+  .cw{border-width:1.2px}
+  #lp{width:112px;height:112px}
+  .res{grid-template-columns:1fr 1fr;gap:7px}
+  .rc .v{font-size:17px}
+  .zbar .zl:last-of-type{display:none}
+  .scalebox .row{gap:6px}
+  .scalebox input[type=number]{width:84px;min-height:40px}
+  .scalebox select{min-height:40px}
+  .btn{min-height:40px}
+  .btn.sm{min-height:36px}
+  .shutter{width:72px;height:72px}
+  .sig{flex-wrap:wrap;gap:8px 5px}
+  .sig div{flex:1 1 44%;font-size:9.5px}
+  .foot{border-radius:10px;padding:9px 10px}
+  .foot .ln{font-size:12px}
+}
+@media (max-width:420px){
+  .res{grid-template-columns:1fr}
+  #fab td::before{flex-basis:80px;font-size:11px}
+  .head .ttl{font-size:14px}
+}
+
 @media print{
   @page{size:A4 portrait;margin:8mm}
   body{background:#fff}
@@ -159,6 +241,16 @@ h1,h2{margin:0;font-weight:800}
   .sheet:last-of-type{page-break-after:auto}
   .need,.filled,.autofill,.calc,.bad{background:#fff!important;box-shadow:none!important}
   .sheet input,.sheet select,.sheet textarea{color:#000!important}
+  /* في الطباعة الورقة بترجع جداول زي الأصل مهما كان حجم الشاشة */
+  .sheet table.kvm,.sheet table.kvm tbody{display:table}
+  .sheet table.kvm tr{display:table-row}
+  .sheet table.kvm td{display:table-cell;border:1px solid #000;padding:0}
+  .sheet table.kvm td.lbl{background:#eee;padding:3px 5px}
+  #fab thead{display:table-header-group}
+  #fab,#fab tbody{display:table} #fab tr{display:table-row;border:0;margin:0;padding:0}
+  #fab td{display:table-cell;border:1px solid #000;padding:0}
+  #fab td::before{display:none}
+  #acc,#tok{min-width:0} .hscroll{overflow:visible}
 }
 </style>
 </head>
@@ -229,6 +321,17 @@ h1,h2{margin:0;font-weight:800}
       <div class="tip" id="scaleTip"></div>
     </div>
 
+    <div class="scalebox" id="typeBox" style="display:none">
+      <div class="hd">نوع الشباك — اقتراح من الصورة</div>
+      <div id="typeOut" style="font-size:12.5px"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn sm" id="bKind" type="button">استخدم الاقتراح في المعاينة</button>
+        <span id="kindOk" style="font-size:11.5px;font-weight:700;color:var(--ok)"></span>
+      </div>
+      <div class="tip"><b>ده تخمين من الصورة، مش تأكيد.</b> عدد الضلف بيتقرا من العوارض الغامقة،
+        ونوع الشباك بيتخمّن من عرض العارضة الوسط. البرنامج <b>مش هيحطه لوحده</b> —
+        شوف الشباك بعينك واختار النوع في المعاينة، أو دوس الزرار لو الاقتراح صح.</div>
+    </div>
     <div class="res" id="res"></div>
     <div id="resNote"></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
@@ -261,7 +364,7 @@ h1,h2{margin:0;font-weight:800}
     <div class="logo"><span class="mk">◈</span>NAGUIB SELIM<small>FABRICA DE CORTINAS</small></div>
   </div>
 
-  <table>
+  <table class="kvm">
     <colgroup><col style="width:14%"><col style="width:36%"><col style="width:14%"><col style="width:36%"></colgroup>
     <tr><td class="lbl">فــرع</td><td class="r"><input id="sBr" data-req></td>
         <td class="lbl">اسم الغرفة</td><td class="r"><input id="sRoom" data-req></td></tr>
@@ -272,7 +375,7 @@ h1,h2{margin:0;font-weight:800}
   </table>
 
   <div class="sec">✱ المقاسات بالمتر — مقاس لكل شباك / وحدة</div>
-  <table>
+  <table class="kvm">
     <colgroup><col style="width:44%"><col style="width:12%"><col style="width:32%"><col style="width:12%"></colgroup>
     <tr><td class="lbl">١ — العرض الكلي للحائط</td><td><input id="wallW" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
         <td class="lbl">٨ — ارتفاع الشباك</td><td><input id="winH" data-req type="number" inputmode="decimal" min="0" step="0.01"></td></tr>
@@ -290,7 +393,7 @@ h1,h2{margin:0;font-weight:800}
         <td class="lbl">١٣ — من الأرض لبيت الستارة داخليًا</td><td><input id="boxF" data-box type="number" inputmode="decimal" min="0" step="0.01"></td></tr>
   </table>
 
-  <table style="margin-top:4px">
+  <table class="kvm" style="margin-top:4px">
     <colgroup><col style="width:22%"><col style="width:44%"><col style="width:18%"><col style="width:16%"></colgroup>
     <tr><td class="lbl">نوع بيت الستارة</td><td><div class="ckrow" data-req="boxKind">
           <label class="ck"><input type="radio" name="boxKind" value="مسطح"><i></i>مسطح</label>
@@ -309,14 +412,14 @@ h1,h2{margin:0;font-weight:800}
         <td class="lbl">١٤ — صورة الشباك</td><td><input id="sPic" type="file" accept="image/*" capture="environment" style="font-size:10px;padding:3px"></td></tr>
   </table>
 
-  <table style="margin-top:6px"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tr>
+  <table class="kvm" style="margin-top:6px"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tr>
     <td style="padding:0"><div class="box" style="border:0"><b>رسم توضيحي للوحدة — اضغط أي رقم</b>
       <div class="in2" style="padding:0"><div class="diag" id="diag" style="width:100%"></div></div></div></td>
     <td style="padding:0"><div class="box" style="border:0"><b>صورة الشباك / الغرفة</b>
       <div class="in2"><div class="ph" id="picPh">صوّر الشباك وهيظهر هنا</div><img id="picImg" style="display:none"></div></div></td>
   </tr></table>
 
-  <table style="margin-top:5px"><tr><td style="padding:6px;text-align:center;font-size:10.5px;font-weight:600">
+  <table class="kvm" style="margin-top:5px"><tr><td style="padding:6px;text-align:center;font-size:10.5px;font-weight:600">
     المقاسات تم رفعها بمعرفة العميل وهو مسئول عنها وأي خطأ بها هي مسئولية العميل</td></tr></table>
   <div class="sig"><div>توقيع العميل</div><div>مهندس التشغيل</div><div>رئيس القسم</div><div>اعتماد مدير الفرع</div></div>
 </div>
@@ -353,7 +456,7 @@ h1,h2{margin:0;font-weight:800}
     <div class="logo"><span class="mk">◈</span>NAGUIB SELIM<small>FABRICA DE CORTINAS</small></div>
   </div>
 
-  <table>
+  <table class="kvm">
     <colgroup><col style="width:13%"><col style="width:28%"><col style="width:17%"><col style="width:42%"></colgroup>
     <tr><td class="lbl">التاريخ</td><td class="r"><input id="oDate" readonly class="autofill"></td>
         <td class="lbl">اسم الفرع</td><td class="r"><input id="oBr" readonly class="autofill"></td></tr>
@@ -365,7 +468,7 @@ h1,h2{margin:0;font-weight:800}
         <td class="lbl">رقم الإذن</td><td class="r"><input id="oNo" placeholder="اختياري"></td></tr>
   </table>
 
-  <table style="margin-top:6px">
+  <table class="kvm" style="margin-top:6px">
     <colgroup><col style="width:50%"><col style="width:18%"><col style="width:16%"><col style="width:16%"></colgroup>
     <tr><td rowspan="5" style="padding:0;vertical-align:top">
           <div class="box" style="border:0"><b>رسم توضيحي للموديل</b>
@@ -380,7 +483,7 @@ h1,h2{margin:0;font-weight:800}
     <tr><td class="lbl">طول التراك</td><td colspan="2"><input id="oTr" readonly class="calc"></td></tr>
   </table>
 
-  <table style="margin-top:5px"><colgroup><col style="width:12%"><col style="width:88%"></colgroup>
+  <table class="kvm" style="margin-top:5px"><colgroup><col style="width:12%"><col style="width:88%"></colgroup>
     <tr><td class="lbl">نوع الفتح</td><td><div class="ckrow" data-req="oOpen">
       <label class="ck"><input type="radio" name="oOpen" value="مفصلي"><i></i>مفصلي</label>
       <label class="ck"><input type="radio" name="oOpen" value="جرار"><i></i>جرار</label>
@@ -404,9 +507,9 @@ h1,h2{margin:0;font-weight:800}
     <span class="grow"></span><span id="fabSum" style="font-size:12px;font-weight:800"></span></div>
 
   <div class="sec">الإكسـوار :</div>
-  <table id="acc"></table>
+  <div class="hscroll"><table id="acc"></table></div>
 
-  <table style="margin-top:6px"><colgroup><col style="width:13%"><col style="width:56%"><col style="width:11%"><col style="width:20%"></colgroup>
+  <table class="kvm" style="margin-top:6px"><colgroup><col style="width:13%"><col style="width:56%"><col style="width:11%"><col style="width:20%"></colgroup>
     <tr><td class="lbl">نوع البطانة</td><td><div class="ckrow">
         <label class="ck"><input type="checkbox" name="lin" value="تنجيد بوكس"><i></i>تنجيد بوكس</label>
         <label class="ck"><input type="checkbox" name="lin" value="أويمة"><i></i>أويمة</label>
@@ -415,9 +518,9 @@ h1,h2{margin:0;font-weight:800}
   </table>
 
   <div class="sec">الطقة :</div>
-  <table id="tok"></table>
+  <div class="hscroll"><table id="tok"></table></div>
 
-  <table style="margin-top:6px"><tr><td class="lbl" style="width:17%">ملاحظات المكتب الفني</td>
+  <table class="kvm" style="margin-top:6px"><tr><td class="lbl" style="width:17%">ملاحظات المكتب الفني</td>
     <td style="padding:0"><textarea id="tNote" rows="2"></textarea></td></tr></table>
 
   <div class="sig"><div>توقيع البائع</div><div>مدير الفرع</div><div>توقيع العميل</div><div>المكتب الفني</div><div>مدير التشغيل</div></div>
@@ -617,23 +720,23 @@ function rowH(L){
       +'<option value="closed"'+(L.heavy==='closed'?' selected':'')+'>مضمومين</option>'
       +'<option value="decor"'+(L.heavy==='decor'?' selected':'')+'>ديكور ٢/٣</option></select>' : '';
   return '<tr data-id="'+L.id+'">'
-    +'<td><select data-k="type" class="'+c(L.type)+'"><option value="">—</option>'
+    +'<td data-l="نوع القماش"><select data-k="type" class="'+c(L.type)+'"><option value="">—</option>'
       +'<option value="light"'+(L.type==='light'?' selected':'')+'>خفيف</option>'
       +'<option value="heavy"'+(L.type==='heavy'?' selected':'')+'>تقيل</option>'
       +'<option value="blackout"'+(L.type==='blackout'?' selected':'')+'>بلاك اوت</option></select></td>'
-    +'<td><input data-k="code" value="'+L.code+'" class="'+c(L.code)+'"></td>'
-    +'<td><input data-k="name" value="'+L.name+'" class="'+c(L.name)+'"></td>'
-    +'<td><select data-k="wClass" class="'+c(L.wClass)+'"><option value="">—</option>'
+    +'<td data-l="الكود"><input data-k="code" value="'+L.code+'" class="'+c(L.code)+'"></td>'
+    +'<td data-l="الصنف"><input data-k="name" value="'+L.name+'" class="'+c(L.name)+'"></td>'
+    +'<td data-l="عرض الخامة"><select data-k="wClass" class="'+c(L.wClass)+'"><option value="">—</option>'
       +'<option value="single"'+(L.wClass==='single'?' selected':'')+'>عرض واحد</option>'
       +'<option value="double"'+(L.wClass==='double'?' selected':'')+'>عرضين</option></select></td>'
-    +'<td><input data-k="fH" type="number" min="0" step="0.05" value="'+L.fH+'" class="'+c(L.fH)+'" placeholder="2.80"></td>'
-    +'<td data-c="m" class="calc pend">—</td><td data-c="p" class="calc pend">—</td>'
-    +'<td><select data-k="style" class="'+c(L.style)+'"><option value="">—</option>'
+    +'<td data-l="ارتفاع الخامة"><input data-k="fH" type="number" min="0" step="0.05" value="'+L.fH+'" class="'+c(L.fH)+'" placeholder="2.80"></td>'
+    +'<td data-l="الأمتار" data-c="m" class="calc pend">—</td><td data-l="عدد العرض" data-c="p" class="calc pend">—</td>'
+    +'<td data-l="نوع التفصيل"><select data-k="style" class="'+c(L.style)+'"><option value="">—</option>'
       +'<option value="wave"'+(L.style==='wave'?' selected':'')+'>ويفي</option>'
       +'<option value="normal"'+(L.style==='normal'?' selected':'')+'>شريط عادي</option>'
       +'<option value="rings"'+(L.style==='rings'?' selected':'')+'>حلقات</option>'
       +'<option value="eyelets"'+(L.style==='eyelets'?' selected':'')+'>كالونات</option></select>'+sub+'</td>'
-    +'<td><input data-k="ex" value="'+L.ex+'" placeholder="—">'
+    +'<td data-l="تطريز · تهديل"><input data-k="ex" value="'+L.ex+'" placeholder="—">'
       +'<button class="btn sm noP" data-del type="button" style="width:100%;padding:1px;font-size:10px;border-radius:0;border-width:0">حذف</button></td></tr>';
 }
 function draw(){
@@ -816,13 +919,24 @@ pic('sPic','picImg','picPh'); pic('drawIn','drawImg','drawPh');
 const A4L=29.7, A4S=21;
 const cv=$('cvs'), cx2=cv.getContext('2d',{willReadFrequently:true});
 const lp=$('lp'), lc=lp.getContext('2d');
-let im=null, P=[], drag=-1, skip={};
+let im=null, P=[], drag=-1, skip={}, SRC=null;
+/* بكسلات الصورة في نفس إحداثيات النقط — للكشف عن ضلف الشباك */
+function srcPixels(){
+  if(SRC!==null) return SRC;
+  try{
+    const c=document.createElement('canvas'); c.width=cv.width; c.height=cv.height;
+    const g=c.getContext('2d',{willReadFrequently:true});
+    g.drawImage(im,0,0,c.width,c.height);
+    SRC={d:g.getImageData(0,0,c.width,c.height).data,w:c.width,h:c.height};
+  }catch(e){ SRC=false; }
+  return SRC;
+}
 /* ترتيب النقط: 0-3 أركان الشباك · 4 الأرض · 5 السقف · 6-9 أركان ورقة A4 */
-const I_FLOOR=4, I_CEIL=5, I_PAPER=6;
+const I_FLOOR=4, I_CEIL=5, I_WALLR=6, I_WALLL=7, I_PAPER=8;
 const D=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const area=q=>q.reduce((s,p,i)=>{const n=q[(i+1)%q.length];return s+p[0]*n[1]-n[0]*p[1];},0)/2;
 const sMode=()=>{const e=document.querySelector('input[name="sMode"]:checked'); return e?e.value:'known';};
-const nPts=()=>sMode()==='a4'?10:6;
+const nPts=()=>sMode()==='a4'?12:8;
 
 function oq(q){
   const cx=q.reduce((s,p)=>s+p[0],0)/4, cy=q.reduce((s,p)=>s+p[1],0)/4;
@@ -962,25 +1076,90 @@ function solve(winP,opts){
     return Math.abs(e[0]*g[1]-e[1]*g[0])/Math.hypot(e[0],e[1])*scale;};
   if(opts.floor) o.sill=perp(pl(opts.floor),R[3],R[2]);
   if(opts.ceil)  o.drop=perp(pl(opts.ceil), R[0],R[1]);
+  /* المسافة الأفقية للحائط: إحداثي x في مستوى الحائط، والشباك من 0 لـ 1 */
+  if(opts.wallR){ const g=(pl(opts.wallR)[0]-1)*scale; if(g>0) o.gapR=g; }
+  if(opts.wallL){ const g=(0-pl(opts.wallL)[0])*scale; if(g>0) o.gapL=g; }
+  if(o.gapR!=null&&o.gapL!=null) o.wallW=o.gapR+o.W+o.gapL;
   return o;
+}
+
+/* بيفرد الشباك لمستطيل مواجه وبيدوّر على القوائم الرأسية (العوارض) جواه.
+   العارضة = شريط غامق ضيق ماشي من فوق لتحت — بندوّر على الشريط نفسه
+   مش على حوافه، لأن الحافة الواحدة بتدي قمتين. */
+function detectLeaves(){
+  const S0=srcPixels(); if(!S0||P.length<4) return null;
+  const wq=oq(P.slice(0,4));
+  const Hw=hom([[0,0],[1,0],[1,1],[0,1]],wq); if(!Hw) return null;
+  const NW=360, NH=220;
+  const lum=new Float32Array(NW*NH);
+  for(let j=0;j<NH;j++)for(let i=0;i<NW;i++){
+    const q=ap(Hw,[(i+0.5)/NW,(j+0.5)/NH]);
+    const x=Math.round(q[0]), y=Math.round(q[1]);
+    let L=0;
+    if(x>=0&&y>=0&&x<S0.w&&y<S0.h){const o=(y*S0.w+x)*4; L=S0.d[o]*.299+S0.d[o+1]*.587+S0.d[o+2]*.114;}
+    lum[j*NW+i]=L;
+  }
+  /* عتبة أوتسو على جوه الشباك */
+  const hist=new Uint32Array(256); let n=0;
+  for(let k=0;k<NW*NH;k++){ hist[Math.min(255,lum[k]|0)]++; n++; }
+  let tot=0; for(let i=0;i<256;i++) tot+=i*hist[i];
+  let sumB=0,wB=0,best=-1,thr=110;
+  for(let t=0;t<256;t++){
+    wB+=hist[t]; if(!wB) continue;
+    const wF=n-wB; if(!wF) break;
+    sumB+=t*hist[t];
+    const mB=sumB/wB, mF=(tot-sumB)/wF, v=wB*wF*(mB-mF)*(mB-mF);
+    if(v>best){best=v; thr=t;}
+  }
+  /* نسبة البكسلات الغامقة في كل عمود — العارضة بتبقى غامقة على طول الارتفاع */
+  const frac=new Float32Array(NW);
+  for(let i=0;i<NW;i++){ let c=0;
+    for(let j=0;j<NH;j++) if(lum[j*NW+i]<thr) c++;
+    frac[i]=c/NH; }
+  const sm=new Float32Array(NW);
+  for(let i=0;i<NW;i++){let a=0,m=0;
+    for(let k=-2;k<=2;k++){const t=i+k; if(t>=0&&t<NW){a+=frac[t];m++;}} sm[i]=a/m;}
+  /* نتجاهل إطار الشباك نفسه من الجنبين */
+  const lo=Math.round(NW*0.08), hi=NW-lo;
+  const minW=Math.max(2,Math.round(NW*0.006)), maxW=Math.round(NW*0.13);
+  const bands=[]; let st=-1;
+  for(let i=lo;i<hi;i++){
+    const on=sm[i]>0.62;
+    if(on&&st<0) st=i;
+    else if(!on&&st>=0){ const w=i-st; if(w>=minW&&w<=maxW) bands.push({a:st,b:i,w:w}); st=-1; }
+  }
+  if(st>=0){ const w=hi-st; if(w>=minW&&w<=maxW) bands.push({a:st,b:hi,w:w}); }
+  const leaves=Math.max(1,bands.length+1);
+  /* الجرار: الضلفتين بيركبوا على بعض فالشريط الوسط بيبقى عريض */
+  const wide = bands.some(b=>b.w>NW*0.045);
+  let kind=null, conf=0;
+  if(leaves===1){ kind='ثابت'; conf=0.45; }
+  else if(leaves===2){ kind = wide?'جرار':'مفصلي'; conf = wide?0.45:0.4; }
+  else { kind='جرار'; conf=0.5; }
+  return {leaves:leaves, kind:kind, wide:wide, conf:conf,
+          bands:bands.length, widths:bands.map(b=>+(b.w/NW*100).toFixed(1))};
 }
 
 function stepText(n){
   const L=['ركن الشباك — ١ من ٤ (فوق يمين)','ركن الشباك — ٢ من ٤ (فوق شمال)',
            'ركن الشباك — ٣ من ٤ (تحت شمال)','ركن الشباك — ٤ من ٤ (تحت يمين)',
-           'نقطة على الأرض تحت الشباك (خانة ٦) — أو اضغط تخطّي',
-           'نقطة على السقف فوق الشباك (خانة ٧) — أو اضغط تخطّي'];
+           'نقطة على الأرض تحت الشباك (خانة ٦) — أو تخطّي',
+           'نقطة على السقف فوق الشباك (خانة ٧) — أو تخطّي',
+           'حد الحائط من اليمين — عشان خانة ٣ تتحسب — أو تخطّي',
+           'حد الحائط من الشمال — عشان خانة ٤ تتحسب — أو تخطّي'];
   if(sMode()==='a4') L.push('ركن ورقة الـ A4 — ١ من ٤','ركن الورقة — ٢ من ٤','ركن الورقة — ٣ من ٤','ركن الورقة — ٤ من ٤');
   return n<L.length ? L[n] : 'تمام ✓ — كبّر واسحب أي نقطة تظبطها';
 }
-let MEAS=null;
+let MEAS=null, KIND=null, KIND_OK=false;
 function measure(){
   if(!im||P.length<4) return null;
   const opts={imgW:cv.width, imgH:cv.height,
     floor:(P[I_FLOOR]&&!skip[I_FLOOR])?P[I_FLOOR]:null,
-    ceil:(P[I_CEIL]&&!skip[I_CEIL])?P[I_CEIL]:null};
+    ceil:(P[I_CEIL]&&!skip[I_CEIL])?P[I_CEIL]:null,
+    wallR:(P[I_WALLR]&&!skip[I_WALLR])?P[I_WALLR]:null,
+    wallL:(P[I_WALLL]&&!skip[I_WALLL])?P[I_WALLL]:null};
   if(sMode()==='a4'){
-    if(P.length<10) return null;
+    if(P.length<12) return null;
     opts.paper=P.slice(I_PAPER,I_PAPER+4);
   } else {
     const v=parseFloat($('knownVal').value);
@@ -1030,12 +1209,22 @@ function render(sk){
     if(fill&&a.length===4){cx2.fillStyle=fill; cx2.fill();}};
   const wp=P.slice(0,4).filter(Boolean);
   poly(wp.length===4?oq(wp):wp, cw, null);
+  /* خطوط أفقية من ضلع الشباك لحد الحائط */
+  if(P.length>=4){
+    const wo=oq(P.slice(0,4));
+    [[I_WALLR,wo[1],wo[2]],[I_WALLL,wo[0],wo[3]]].forEach(([ix,a,b])=>{
+      if(!P[ix]||skip[ix])return;
+      const mid=toC([(a[0]+b[0])/2,(a[1]+b[1])/2]), e=toC(P[ix]);
+      cx2.setLineDash([9*s,7*s]); cx2.beginPath(); cx2.moveTo(mid[0],mid[1]); cx2.lineTo(e[0],e[1]);
+      cx2.strokeStyle='#7B4FA8'; cx2.lineWidth=lw*1.1; cx2.stroke(); cx2.setLineDash([]);
+    });
+  }
   const pp=P.slice(I_PAPER,I_PAPER+4).filter(Boolean);
   poly(pp.length===4?oq(pp):pp, cp, 'rgba(36,95,158,.18)');
-  const tag=i=>i<4?String(i+1):i===4?'أرض':i===5?'سقف':'A'+(i-5);
+  const tag=i=>i<4?String(i+1):i===4?'أرض':i===5?'سقف':i===6?'حيطة يمين':i===7?'حيطة شمال':'A'+(i-7);
   P.forEach((p,i)=>{
     if(i===sk||skip[i])return;
-    const c=i<4?cw:i<6?ce:cp, q=toC(p);
+    const c=i<4?cw:i<6?ce:i<8?'#7B4FA8':cp, q=toC(p);
     const rr=i<4?15*s:11*s;
     cx2.beginPath(); cx2.arc(q[0],q[1],rr,0,7); cx2.lineWidth=lw*1.7; cx2.strokeStyle='#fff'; cx2.stroke();
     cx2.beginPath(); cx2.arc(q[0],q[1],rr,0,7); cx2.lineWidth=lw*1.2; cx2.strokeStyle=c; cx2.stroke();
@@ -1054,12 +1243,25 @@ function upd(){
   $('stepT').textContent=stepText(n);
   $('step').querySelector('.d').textContent=n<nPts()?(n+1):'✓';
   $('step').classList.toggle('done',n>=nPts());
-  $('bSkip').style.display=(P.length===I_FLOOR||P.length===I_CEIL)?'':'none';
+  $('bSkip').style.display=(P.length>=I_FLOOR&&P.length<=I_WALLL)?'':'none';
   const m=measure(); MEAS=m;
   $('res').innerHTML=m?('<div class="rc hi"><div class="k">عرض الشباك (٢)</div><div class="v">'+(m.W/100).toFixed(2)+' م</div></div>'
     +'<div class="rc hi"><div class="k">ارتفاع الشباك (٨)</div><div class="v">'+(m.H/100).toFixed(2)+' م</div></div>'
     +(m.sill!=null?'<div class="rc"><div class="k">من الأرض لبداية الشباك (٦)</div><div class="v">'+(m.sill/100).toFixed(2)+' م</div></div>':'')
-    +(m.drop!=null?'<div class="rc"><div class="k">السقوط (٧)</div><div class="v">'+(m.drop/100).toFixed(2)+' م</div></div>':'')):'';
+    +(m.drop!=null?'<div class="rc"><div class="k">السقوط (٧)</div><div class="v">'+(m.drop/100).toFixed(2)+' م</div></div>':'')
+    +(m.gapR!=null?'<div class="rc"><div class="k">من الحائط للشباك يمين (٣)</div><div class="v">'+(m.gapR/100).toFixed(2)+' م</div></div>':'')
+    +(m.gapL!=null?'<div class="rc"><div class="k">من الحائط للشباك شمال (٤)</div><div class="v">'+(m.gapL/100).toFixed(2)+' م</div></div>':'')
+    +(m.wallW!=null?'<div class="rc"><div class="k">العرض الكلي للحائط (١)</div><div class="v">'+(m.wallW/100).toFixed(2)+' م</div></div>':'')):'';
+  /* اقتراح نوع الشباك من عدد الضلف */
+  const prev=KIND?KIND.kind:null;
+  KIND=(P.length>=4&&im)?detectLeaves():null;
+  if(!KIND||KIND.kind!==prev){KIND_OK=false; $('kindOk').textContent='';}
+  $('typeBox').style.display=KIND?'':'none';
+  if(KIND){
+    $('typeOut').innerHTML='عدد الضلف اللي اتقرا من الصورة: <b>'+KIND.leaves+'</b>'
+      +(KIND.wide?' · العارضة الوسط عريضة (يمكن ضلفتين راكبين على بعض)':'')
+      +' — اقتراح للنوع: <b>'+KIND.kind+'</b>';
+  }
   $('scaleTip').innerHTML = a4
     ? 'الورقة <b>لازم تكون في نفس مستوى اللي بتقيسه</b> — لو الشباك غاطس جوه الحيطة والورقة على وش الحيطة، المقاس هيطلع غلط. الصقها على ضلفة الشباك نفسها.'
     : 'اقيس ضلع واحد بالشريط واكتبه هنا، والباقي كله بيتحسب منه. دي أدق طريقة لأن المرجع هو الشباك نفسه.';
@@ -1161,6 +1363,9 @@ $('bFind').addEventListener('click',()=>{
 document.querySelectorAll('input[name="sMode"]').forEach(r=>r.addEventListener('change',()=>{
   if(sMode()==='known'&&P.length>I_PAPER) P.length=I_PAPER;
   upd();}));
+$('bKind').addEventListener('click',()=>{
+  if(!KIND)return; KIND_OK=true;
+  $('kindOk').textContent='✓ هيتحط «'+KIND.kind+'» في المعاينة';});
 $('knownVal').addEventListener('input',upd);
 $('knownSide').addEventListener('change',upd);
 $('bAgain').addEventListener('click',()=>{P=[]; skip={}; VZ=1;VX=0;VY=0; openCam();});
@@ -1168,7 +1373,12 @@ $('bUse').addEventListener('click',()=>{
   if(!MEAS)return;
   fill({winW:MEAS.W/100, winH:MEAS.H/100,
         hStart:MEAS.sill!=null?MEAS.sill/100:null,
-        drop:MEAS.drop!=null?MEAS.drop/100:null}, MEAS.srcT);
+        drop:MEAS.drop!=null?MEAS.drop/100:null,
+        gapR:MEAS.gapR!=null?MEAS.gapR/100:null,
+        gapL:MEAS.gapL!=null?MEAS.gapL/100:null,
+        wallW:MEAS.wallW!=null?MEAS.wallW/100:null,
+        kind:KIND_OK?KIND.kind:null,
+        leaves:KIND?KIND.leaves:null}, MEAS.srcT);
 });
 
 /* ===== الكاميرا: التصوير بإيدك، من غير أي التقاط تلقائي ===== */
@@ -1205,7 +1415,7 @@ function snap(c){
   shutCam();
   cv.width=c.width; cv.height=c.height;
   const i=new Image();
-  i.onload=()=>{im=i; P=[]; skip={}; VZ=1;VX=0;VY=0;
+  i.onload=()=>{im=i; P=[]; skip={}; SRC=null; VZ=1;VX=0;VY=0;
     $('work').classList.add('on'); upd(); $('work').scrollIntoView({behavior:'smooth',block:'start'});};
   i.src=c.toDataURL('image/jpeg',.95);
 }
@@ -1217,7 +1427,7 @@ $('fileIn').addEventListener('change',e=>{
   i.onload=()=>{
     const s=Math.min(1,3000/Math.max(i.naturalWidth,i.naturalHeight));
     cv.width=Math.round(i.naturalWidth*s); cv.height=Math.round(i.naturalHeight*s);
-    im=i; P=[]; skip={}; VZ=1;VX=0;VY=0;
+    im=i; P=[]; skip={}; SRC=null; VZ=1;VX=0;VY=0;
     $('work').classList.add('on'); upd(); $('work').scrollIntoView({behavior:'smooth',block:'start'});};
   i.onerror=()=>alert('الصورة مش راضية تتفتح — جرّب تصوّر تاني.');
   i.src=URL.createObjectURL(f);
@@ -1332,9 +1542,26 @@ function fill(m,src){
   let hc=m.hCeil;
   if(!hc&&m.drop&&m.winH&&m.hStart!=null) hc=m.drop+m.winH+m.hStart;
   if(set('hCeil',hc)) f.push('ارتفاع السقف '+hc.toFixed(2));
+  if(set('gapR',m.gapR)) f.push('من الحائط يمين '+m.gapR.toFixed(2));
+  if(set('gapL',m.gapL)) f.push('من الحائط شمال '+m.gapL.toFixed(2));
+  let ww=m.wallW;
+  if(!ww&&m.gapR!=null&&m.gapL!=null&&m.winW) ww=m.gapR+m.winW+m.gapL;
+  if(set('wallW',ww)) f.push('عرض الحائط '+ww.toFixed(2));
   tab(1);
-  $('note1').innerHTML='<div class="msg info">📏 اتملى من <b>'+src+'</b>: '+f.join(' · ')
-    +' م — راجعهم وكمّل الباقي (١ و٣ و٤ وبيانات العميل).</div>';
+  let extra='';
+  if(m.kind){
+    const el=document.querySelector('input[name="winKind"][value="'+m.kind+'"]');
+    if(el){ el.checked=true;
+      extra='<div class="msg warn">🪟 نوع الشباك اتحط <b>'+m.kind+'</b> كاقتراح من الصورة ('
+        +m.leaves+' ضلف) — <b>راجعه بعينك</b> وغيّره لو غلط.</div>'; }
+  }
+  const miss=[];
+  if(!num($('gapR').value)) miss.push('٣');
+  if(!num($('gapL').value)) miss.push('٤');
+  if(!num($('wallW').value)) miss.push('١');
+  $('note1').innerHTML='<div class="msg info">📏 اتملى من <b>'+src+'</b>: '+f.join(' · ')+' م'
+    +(miss.length?' — كمّل الخانات '+miss.join(' و')+' وبيانات العميل.':' — راجعهم وكمّل بيانات العميل.')
+    +'</div>'+extra;
   go();
 }
 function tab(i){
@@ -1378,6 +1605,8 @@ $('wDemo').addEventListener('click',()=>{
       DEMO.win.forEach(p=>P.push([p[0],p[1]]));
       P.push([DEMO.floor[0],DEMO.floor[1]]);
       P.push([DEMO.ceil[0],DEMO.ceil[1]]);
+      skip[P.length]=true; P.push([0,0]);   /* حد الحائط يمين — برّه الصورة في العيّنة */
+      skip[P.length]=true; P.push([0,0]);   /* حد الحائط شمال */
       const r=findPaper(cv);
       if(r) r.quad.forEach(p=>P.push([p[0],p[1]]));
       $('work').classList.add('on'); upd();
