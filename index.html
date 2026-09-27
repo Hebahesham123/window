@@ -135,6 +135,19 @@ h1,h2{margin:0;font-weight:800}
 .cam .t .btn,#ar .t .btn{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.32);color:#fff}
 .ring{width:46px;height:46px;margin:0 auto 8px;border-radius:50%;border:4px solid rgba(255,255,255,.3);position:relative}
 .ring i{position:absolute;inset:-4px;border-radius:50%;border:4px solid #E8B730;clip-path:inset(100% 0 0 0);transition:clip-path .12s linear}
+.shutter{width:66px;height:66px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,.45);
+  margin:10px auto 0;display:block;cursor:pointer;padding:0}
+.shutter:active{transform:scale(.93)}
+.zbar{display:flex;gap:6px;align-items:center;margin:0 0 7px;flex-wrap:wrap}
+.zbar .zl{font-size:11.5px;color:var(--mut);font-weight:700}
+.scalebox{border:1px solid #C3CBD4;border-radius:9px;background:#fff;padding:10px 12px;margin-top:10px}
+.scalebox .hd{font-size:12px;font-weight:800;margin-bottom:7px}
+.scalebox .opts{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.scalebox label.o{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;cursor:pointer}
+.scalebox .row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:12.5px}
+.scalebox input[type=number]{width:96px;padding:6px 8px;border:1px solid #C3CBD4;border-radius:7px;font:inherit;text-align:center}
+.scalebox select{padding:6px 8px;border:1px solid #C3CBD4;border-radius:7px;font:inherit}
+.scalebox .tip{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.6}
 #ar{position:fixed;inset:0;z-index:95;display:none;pointer-events:none} #ar.on{display:block}
 #ar .t,#ar .b{pointer-events:auto}
 @media print{
@@ -187,12 +200,41 @@ h1,h2{margin:0;font-weight:800}
 
   <div id="work">
     <div class="step" id="step"><span class="d">1</span><span id="stepT"></span></div>
+    <div class="zbar">
+      <span class="zl">تكبير:</span>
+      <button class="btn sm" id="zOut" type="button">－</button>
+      <button class="btn sm" id="zIn" type="button">＋</button>
+      <button class="btn sm" id="zFit" type="button">⤢ الصورة كاملة</button>
+      <span class="zl" id="zLbl">١×</span>
+      <span class="grow"></span>
+      <span class="zl">كبّر على الركن قبل ما تحطه — كل بكسل بيفرق</span>
+    </div>
     <div class="cw"><canvas id="cvs"></canvas><canvas id="lp" width="128" height="128"></canvas></div>
+
+    <div class="scalebox">
+      <div class="hd">مصدر المقياس</div>
+      <div class="opts">
+        <label class="o"><input type="radio" name="sMode" value="known" checked>مقاس عندك بالمتر (أدق)</label>
+        <label class="o"><input type="radio" name="sMode" value="a4">ورقة A4 في الصورة</label>
+      </div>
+      <div class="row" id="knownRow">
+        <select id="knownSide">
+          <option value="w">عرض الشباك</option>
+          <option value="h">ارتفاع الشباك</option>
+        </select>
+        <span>=</span>
+        <input id="knownVal" type="number" inputmode="decimal" min="0.1" step="0.01" placeholder="1.88">
+        <span>متر (بالمتر من الشريط)</span>
+      </div>
+      <div class="tip" id="scaleTip"></div>
+    </div>
+
     <div class="res" id="res"></div>
     <div id="resNote"></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
       <button class="btn sm" id="bUndo" type="button">↶ تراجع نقطة</button>
       <button class="btn sm" id="bSkip" type="button">تخطّي النقطة</button>
+      <button class="btn sm" id="bFind" type="button">✨ دوّر على الورقة تلقائيًا</button>
       <button class="btn sm" id="bAgain" type="button">📷 صورة جديدة</button>
       <button class="btn go" id="bUse" type="button" disabled>استخدم المقاس ← المعاينة</button>
     </div>
@@ -389,10 +431,12 @@ h1,h2{margin:0;font-weight:800}
 
 <div class="cam" id="cam">
   <video id="vid" playsinline muted></video><canvas id="ov"></canvas>
-  <div class="t"><button class="btn sm" id="cX" type="button">✕</button><div class="grow"></div>
-    <button class="btn sm" id="cShot" type="button">📷 صوّر دلوقتي</button></div>
-  <div class="b"><div class="ring" id="cRing"><i></i></div>
-    <b id="cT">بندوّر على ورقة الـ A4…</b><span id="cS">حط ورقة A4 على الحيطة جنب الشباك</span></div>
+  <div class="t"><button class="btn sm" id="cX" type="button">✕ خروج</button><div class="grow"></div></div>
+  <div class="b">
+    <b id="cT">صوّر الشباك كامل</b>
+    <span id="cS">قف مواجه الشباك قدر الإمكان · ثبّت إيدك · النقط هتحطها بنفسك بعد التصوير</span>
+    <button class="shutter" id="cShot" type="button" aria-label="صوّر"></button>
+  </div>
 </div>
 <div id="ar">
   <div class="t"><button class="btn sm" id="aX" type="button">✕</button><div class="grow"></div>
@@ -773,8 +817,13 @@ const A4L=29.7, A4S=21;
 const cv=$('cvs'), cx2=cv.getContext('2d',{willReadFrequently:true});
 const lp=$('lp'), lc=lp.getContext('2d');
 let im=null, P=[], drag=-1, skip={};
+/* ترتيب النقط: 0-3 أركان الشباك · 4 الأرض · 5 السقف · 6-9 أركان ورقة A4 */
+const I_FLOOR=4, I_CEIL=5, I_PAPER=6;
 const D=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const area=q=>q.reduce((s,p,i)=>{const n=q[(i+1)%q.length];return s+p[0]*n[1]-n[0]*p[1];},0)/2;
+const sMode=()=>{const e=document.querySelector('input[name="sMode"]:checked'); return e?e.value:'known';};
+const nPts=()=>sMode()==='a4'?10:6;
+
 function oq(q){
   const cx=q.reduce((s,p)=>s+p[0],0)/4, cy=q.reduce((s,p)=>s+p[1],0)/4;
   const s=q.slice().sort((a,b)=>Math.atan2(a[1]-cy,a[0]-cx)-Math.atan2(b[1]-cy,b[0]-cx));
@@ -805,7 +854,7 @@ function inv(H){
   const o=[]; for(let r=0;r<3;r++)for(let k=0;k<3;k++)o[r*3+k]=c(k,r)/det;
   return o.map(v=>v/o[8]);
 }
-/* كاشف الورقة: عتبة تكيّفية بالتباين المحلي على 3 مقاييس */
+/* كاشف ورقة A4 — مساعد اختياري بالزرار بس، مش تلقائي */
 function findPaper(src){
   const R=420, sc=Math.min(1,R/Math.max(src.width,src.height));
   const sw=Math.max(40,Math.round(src.width*sc)), sh=Math.max(40,Math.round(src.height*sc));
@@ -815,15 +864,15 @@ function findPaper(src){
   g.drawImage(src,0,0,sw,sh);
   let d;
   try{ d=g.getImageData(0,0,sw,sh).data; }
-  catch(err){ findPaper.tainted=true; return null; }   /* صورة من file:// بتلوّث الكانفاس */
+  catch(err){ findPaper.tainted=true; return null; }
   const N=sw*sh;
   const L=new Float32Array(N), sat=new Uint8Array(N);
   for(let i=0,p=0;p<N;i+=4,p++){
     const r=d[i],gg=d[i+1],b=d[i+2];
     L[p]=r*.299+gg*.587+b*.114; sat[p]=Math.max(r,gg,b)-Math.min(r,gg,b);}
-  const I=new Float64Array((sw+1)*(sh+1));
+  const II=new Float64Array((sw+1)*(sh+1));
   for(let y=0;y<sh;y++){let row=0;
-    for(let x=0;x<sw;x++){row+=L[y*sw+x]; I[(y+1)*(sw+1)+x+1]=I[y*(sw+1)+x+1]+row;}}
+    for(let x=0;x<sw;x++){row+=L[y*sw+x]; II[(y+1)*(sw+1)+x+1]=II[y*(sw+1)+x+1]+row;}}
   const all=[], lab=new Uint8Array(N), st=new Int32Array(N);
   const minPx=Math.max(50,N*.0008), maxPx=N*.40, RT=A4L/A4S;
   const radii=[Math.max(4,Math.round(Math.max(sw,sh)/26)),
@@ -832,7 +881,7 @@ function findPaper(src){
   for(let ri=0;ri<radii.length;ri++){
     const rr=radii[ri];
     const mean=(x,y)=>{const x0=Math.max(0,x-rr),y0=Math.max(0,y-rr),x1=Math.min(sw,x+rr+1),y1=Math.min(sh,y+rr+1);
-      return (I[y1*(sw+1)+x1]-I[y0*(sw+1)+x1]-I[y1*(sw+1)+x0]+I[y0*(sw+1)+x0])/((x1-x0)*(y1-y0));};
+      return (II[y1*(sw+1)+x1]-II[y0*(sw+1)+x1]-II[y1*(sw+1)+x0]+II[y0*(sw+1)+x0])/((x1-x0)*(y1-y0));};
     const mk=new Uint8Array(N);
     for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){const p=y*sw+x;
       if(sat[p]<58&&L[p]>120&&L[p]>mean(x,y)*1.07+7) mk[p]=1;}
@@ -851,11 +900,11 @@ function findPaper(src){
         if(qy<sh-1&&mk[q+sw]&&!lab[q+sw]){lab[q+sw]=1;st[sp++]=q+sw;}}
       if(sz<minPx||sz>maxPx)continue;
       const Q=oq([c1,c2,c3,c4]);
-      const s=[D(Q[0],Q[1]),D(Q[1],Q[2]),D(Q[2],Q[3]),D(Q[3],Q[0])];
-      if(Math.min.apply(null,s)<6)continue;
-      const wA=(s[0]+s[2])/2, hA=(s[1]+s[3])/2, ratio=Math.max(wA,hA)/Math.min(wA,hA);
+      const sd=[D(Q[0],Q[1]),D(Q[1],Q[2]),D(Q[2],Q[3]),D(Q[3],Q[0])];
+      if(Math.min.apply(null,sd)<6)continue;
+      const wA=(sd[0]+sd[2])/2, hA=(sd[1]+sd[3])/2, ratio=Math.max(wA,hA)/Math.min(wA,hA);
       if(ratio<1.10||ratio>1.95)continue;
-      const sym=Math.abs(s[0]-s[2])/Math.max(s[0],s[2])+Math.abs(s[1]-s[3])/Math.max(s[1],s[3]);
+      const sym=Math.abs(sd[0]-sd[2])/Math.max(sd[0],sd[2])+Math.abs(sd[1]-sd[3])/Math.max(sd[1],sd[3]);
       if(sym>.55)continue;
       const qa=Math.abs(area(Q)), fill=sz/qa;
       if(fill<.70||fill>1.30)continue;
@@ -869,9 +918,14 @@ function findPaper(src){
   all.sort((a,b)=>a.score-b.score);
   return all[0];
 }
-/* الحل: المنظور من مستطيل الشباك، والورقة للمقياس */
-function solve(winP,papP,W,H,extra){
-  const wq=oq(winP), pq=oq(papP);
+
+/* ===== الحل =====
+   شكل المنظور بيتحسب من مستطيل الشباك نفسه.
+   المقياس: يا إما مقاس معروف بالشريط (أدق بكتير) يا إما ورقة A4
+   لازم تكون في نفس مستوى الشباك. */
+function solve(winP,opts){
+  const wq=oq(winP);
+  const W=opts.imgW, H=opts.imgH;
   const Hw=hom([[0,0],[1,0],[1,1],[0,1]],wq); if(!Hw) return null;
   const cx=W/2, cy=H/2, DIM=Math.max(W,H);
   const M=[[Hw[0],Hw[1],Hw[2]],[Hw[3],Hw[4],Hw[5]],[Hw[6],Hw[7],1]];
@@ -886,179 +940,285 @@ function solve(winP,papP,W,H,extra){
   if(!isFinite(asp)||asp<=.05||asp>=20) return null;
   const Hi=inv(Hw); if(!Hi) return null;
   const pl=p=>{const r=ap(Hi,p); return [r[0],r[1]*asp];};
-  const Q=pq.map(pl);
-  const s1=(D(Q[0],Q[1])+D(Q[3],Q[2]))/2, s2=(D(Q[1],Q[2])+D(Q[0],Q[3]))/2;
-  const lo=Math.max(s1,s2), sh2=Math.min(s1,s2);
-  if(!(lo>0&&sh2>0)) return null;
-  const scale=(A4L/lo+A4S/sh2)/2;
-  const o={W:scale, H:asp*scale, f:f, fs:fs, asp:asp, skew:Math.abs(A4L/lo-A4S/sh2)/scale};
+
+  let scale, srcT, acc, skew=0;
+  if(opts.known){
+    scale = opts.known.side==='w' ? opts.known.cm : opts.known.cm/asp;
+    if(!(scale>0)) return null;
+    srcT='مقاس معروف'; acc=0.006;
+  } else {
+    const pq=oq(opts.paper), Q=pq.map(pl);
+    const s1=(D(Q[0],Q[1])+D(Q[3],Q[2]))/2, s2=(D(Q[1],Q[2])+D(Q[0],Q[3]))/2;
+    const lo=Math.max(s1,s2), sh2=Math.min(s1,s2);
+    if(!(lo>0&&sh2>0)) return null;
+    scale=(A4L/lo+A4S/sh2)/2; srcT='ورقة A4';
+    skew=Math.abs(A4L/lo-A4S/sh2)/scale;
+    const px=Math.min(D(pq[0],pq[1]),D(pq[1],pq[2]),D(pq[2],pq[3]),D(pq[3],pq[0]));
+    acc = px>0 ? 1.6/px : 1;
+  }
+  const o={W:scale, H:asp*scale, f:f, fs:fs, asp:asp, srcT:srcT, acc:acc, skew:skew};
   const R=[[0,0],[1,0],[1,asp],[0,asp]];
   const perp=(p,a,b)=>{const e=[b[0]-a[0],b[1]-a[1]],g=[p[0]-a[0],p[1]-a[1]];
     return Math.abs(e[0]*g[1]-e[1]*g[0])/Math.hypot(e[0],e[1])*scale;};
-  if(extra&&extra.floor) o.sill=perp(pl(extra.floor),R[3],R[2]);
-  if(extra&&extra.ceil)  o.drop=perp(pl(extra.ceil), R[0],R[1]);
-  const pxShort=Math.min(D(pq[0],pq[1]),D(pq[1],pq[2]),D(pq[2],pq[3]),D(pq[3],pq[0]));
-  o.acc=pxShort>0?(1.6/pxShort):1;
+  if(opts.floor) o.sill=perp(pl(opts.floor),R[3],R[2]);
+  if(opts.ceil)  o.drop=perp(pl(opts.ceil), R[0],R[1]);
   return o;
 }
 
-const STEPS=['ركن ورقة الـ A4 — ١ من ٤','ركن الورقة — ٢ من ٤','ركن الورقة — ٣ من ٤','ركن الورقة — ٤ من ٤',
-  'ركن الشباك — ١ من ٤','ركن الشباك — ٢ من ٤','ركن الشباك — ٣ من ٤','ركن الشباك — ٤ من ٤',
-  'نقطة على الأرض تحت الشباك (خانة ٦)','نقطة على السقف فوق الشباك (خانة ٧)','تمام ✓ — اسحب أي نقطة تظبطها'];
+function stepText(n){
+  const L=['ركن الشباك — ١ من ٤ (فوق يمين)','ركن الشباك — ٢ من ٤ (فوق شمال)',
+           'ركن الشباك — ٣ من ٤ (تحت شمال)','ركن الشباك — ٤ من ٤ (تحت يمين)',
+           'نقطة على الأرض تحت الشباك (خانة ٦) — أو اضغط تخطّي',
+           'نقطة على السقف فوق الشباك (خانة ٧) — أو اضغط تخطّي'];
+  if(sMode()==='a4') L.push('ركن ورقة الـ A4 — ١ من ٤','ركن الورقة — ٢ من ٤','ركن الورقة — ٣ من ٤','ركن الورقة — ٤ من ٤');
+  return n<L.length ? L[n] : 'تمام ✓ — كبّر واسحب أي نقطة تظبطها';
+}
 let MEAS=null;
 function measure(){
-  if(P.length<8||!im) return null;
-  return solve(P.slice(4,8),P.slice(0,4),cv.width,cv.height,
-    {floor:(P[8]&&!skip[8])?P[8]:null, ceil:(P[9]&&!skip[9])?P[9]:null});
+  if(!im||P.length<4) return null;
+  const opts={imgW:cv.width, imgH:cv.height,
+    floor:(P[I_FLOOR]&&!skip[I_FLOOR])?P[I_FLOOR]:null,
+    ceil:(P[I_CEIL]&&!skip[I_CEIL])?P[I_CEIL]:null};
+  if(sMode()==='a4'){
+    if(P.length<10) return null;
+    opts.paper=P.slice(I_PAPER,I_PAPER+4);
+  } else {
+    const v=parseFloat($('knownVal').value);
+    if(!(v>0)) return null;
+    opts.known={side:$('knownSide').value, cm:v*100};
+  }
+  return solve(P.slice(0,4),opts);
 }
+
+/* ===== تكبير وتحريك الصورة ===== */
+let VZ=1, VX=0, VY=0;
+function clampView(){
+  const dw=cv.width*VZ, dh=cv.height*VZ;
+  VX=Math.min(0,Math.max(VX, cv.width-dw));
+  VY=Math.min(0,Math.max(VY, cv.height-dh));
+  if(dw<=cv.width) VX=(cv.width-dw)/2;
+  if(dh<=cv.height) VY=(cv.height-dh)/2;
+}
+function zLbl(){ $('zLbl').textContent=VZ.toFixed(1).replace(/\.0$/,'')+'×'; }
+function setZoom(z,ax,ay){
+  const old=VZ; VZ=Math.min(8,Math.max(1,z));
+  if(ax===undefined){ax=cv.width/2; ay=cv.height/2;}
+  VX=ax-(ax-VX)*(VZ/old); VY=ay-(ay-VY)*(VZ/old);
+  clampView(); zLbl(); render();
+}
+const toI=e=>{const r=cv.getBoundingClientRect();
+  const sx=(e.clientX-r.left)*cv.width/r.width, sy=(e.clientY-r.top)*cv.height/r.height;
+  return [(sx-VX)/VZ,(sy-VY)/VZ];};
+const toC=p=>[p[0]*VZ+VX, p[1]*VZ+VY];
+
 function render(sk){
   if(sk===undefined)sk=-1;
   if(!im) return;
+  cx2.setTransform(1,0,0,1,0,0);
+  cx2.fillStyle='#fff'; cx2.fillRect(0,0,cv.width,cv.height);
+  cx2.setTransform(VZ,0,0,VZ,VX,VY);
   cx2.drawImage(im,0,0,cv.width,cv.height);
+  cx2.setTransform(1,0,0,1,0,0);
   const s=cv.width/cv.getBoundingClientRect().width, lw=Math.max(2,2*s);
-  const cp='#245F9E', cwn='#E8B730', ce='#1C7A4E';
-  const q=(a,c,f)=>{cx2.beginPath(); a.forEach((p,i)=>i?cx2.lineTo(p[0],p[1]):cx2.moveTo(p[0],p[1]));
-    if(a.length===4)cx2.closePath(); cx2.lineWidth=lw*1.6; cx2.strokeStyle=c; cx2.stroke();
-    if(f&&a.length===4){cx2.fillStyle=f; cx2.fill();}};
-  const pp=P.slice(0,4), ww=P.slice(4,8);
-  if(pp.length) q(pp.length===4?oq(pp):pp,cp,'rgba(36,95,158,.18)');
-  if(ww.length) q(ww.length===4?oq(ww):ww,cwn,null);
+  const cw='#E8B730', cp='#245F9E', ce='#1C7A4E';
+  const poly=(pts,col,fill)=>{
+    if(pts.length<2) return;
+    const a=pts.map(toC);
+    cx2.beginPath(); a.forEach((p,i)=>i?cx2.lineTo(p[0],p[1]):cx2.moveTo(p[0],p[1]));
+    if(a.length===4)cx2.closePath();
+    cx2.lineWidth=lw*1.6; cx2.strokeStyle=col; cx2.stroke();
+    if(fill&&a.length===4){cx2.fillStyle=fill; cx2.fill();}};
+  const wp=P.slice(0,4).filter(Boolean);
+  poly(wp.length===4?oq(wp):wp, cw, null);
+  const pp=P.slice(I_PAPER,I_PAPER+4).filter(Boolean);
+  poly(pp.length===4?oq(pp):pp, cp, 'rgba(36,95,158,.18)');
+  const tag=i=>i<4?String(i+1):i===4?'أرض':i===5?'سقف':'A'+(i-5);
   P.forEach((p,i)=>{
     if(i===sk||skip[i])return;
-    const c=i<4?cp:i<8?cwn:ce;
-    cx2.beginPath(); cx2.arc(p[0],p[1],12*s,0,7); cx2.lineWidth=lw*1.4; cx2.strokeStyle='#fff'; cx2.stroke();
-    cx2.beginPath(); cx2.arc(p[0],p[1],12*s,0,7); cx2.lineWidth=lw; cx2.strokeStyle=c; cx2.stroke();});
+    const c=i<4?cw:i<6?ce:cp, q=toC(p);
+    const rr=i<4?15*s:11*s;
+    cx2.beginPath(); cx2.arc(q[0],q[1],rr,0,7); cx2.lineWidth=lw*1.7; cx2.strokeStyle='#fff'; cx2.stroke();
+    cx2.beginPath(); cx2.arc(q[0],q[1],rr,0,7); cx2.lineWidth=lw*1.2; cx2.strokeStyle=c; cx2.stroke();
+    cx2.beginPath(); cx2.arc(q[0],q[1],1.8*s,0,7); cx2.fillStyle=c; cx2.fill();
+    cx2.font='bold '+(12*s)+'px Tajawal,sans-serif'; cx2.fillStyle=c; cx2.textAlign='center';
+    cx2.strokeStyle='#fff'; cx2.lineWidth=3*s; cx2.strokeText(tag(i), q[0], q[1]-18*s);
+    cx2.fillText(tag(i), q[0], q[1]-18*s);
+  });
 }
 function upd(){
+  const a4=sMode()==='a4';
+  $('knownRow').style.display=a4?'none':'';
+  $('bFind').style.display=a4?'':'none';
   render();
-  const n=Math.min(P.length,10);
-  $('stepT').textContent=STEPS[n];
-  $('step').querySelector('.d').textContent=n<10?(n+1):'✓';
-  $('step').classList.toggle('done',n>=8);
-  $('bSkip').style.display=(n===8||n===9)?'':'none';
+  const n=Math.min(P.length,nPts());
+  $('stepT').textContent=stepText(n);
+  $('step').querySelector('.d').textContent=n<nPts()?(n+1):'✓';
+  $('step').classList.toggle('done',n>=nPts());
+  $('bSkip').style.display=(P.length===I_FLOOR||P.length===I_CEIL)?'':'none';
   const m=measure(); MEAS=m;
   $('res').innerHTML=m?('<div class="rc hi"><div class="k">عرض الشباك (٢)</div><div class="v">'+(m.W/100).toFixed(2)+' م</div></div>'
     +'<div class="rc hi"><div class="k">ارتفاع الشباك (٨)</div><div class="v">'+(m.H/100).toFixed(2)+' م</div></div>'
     +(m.sill!=null?'<div class="rc"><div class="k">من الأرض لبداية الشباك (٦)</div><div class="v">'+(m.sill/100).toFixed(2)+' م</div></div>':'')
     +(m.drop!=null?'<div class="rc"><div class="k">السقوط (٧)</div><div class="v">'+(m.drop/100).toFixed(2)+' م</div></div>':'')):'';
+  $('scaleTip').innerHTML = a4
+    ? 'الورقة <b>لازم تكون في نفس مستوى اللي بتقيسه</b> — لو الشباك غاطس جوه الحيطة والورقة على وش الحيطة، المقاس هيطلع غلط. الصقها على ضلفة الشباك نفسها.'
+    : 'اقيس ضلع واحد بالشريط واكتبه هنا، والباقي كله بيتحسب منه. دي أدق طريقة لأن المرجع هو الشباك نفسه.';
   let w='';
   if(m){
-    const pct=m.acc*100;
-    if(pct>4) w+='<div class="msg warn">⚠ ورقة الـ A4 صغيرة في الصورة، فالمقياس تقريبي (±'+pct.toFixed(0)+'٪ ≈ ±'
-      +(m.W*m.acc).toFixed(0)+' سم على العرض). <b>ظبّط أركان الورقة الأربعة بالسحب</b> — كل بكسل بيفرق، أو صوّر من مسافة أقرب.</div>';
-    else w+='<div class="msg ok">✔ دقة المقياس المتوقعة ±'+pct.toFixed(1)+'٪ (≈ ±'+(m.W*m.acc).toFixed(0)+' سم على العرض).</div>';
-    if(m.skew>.06) w+='<div class="msg warn">⚠ نسبة الورقة في الصورة مش مظبوطة — يا إما ركن غلط يا إما الورقة مش مستوية على الحيطة.</div>';
-    if(m.W>700||m.H>700||m.W<25||m.H<25) w+='<div class="msg err">✕ المقاس ده شكله غلط — راجع الأركان.</div>';
+    if(m.srcT==='مقاس معروف')
+      w+='<div class="msg ok">✔ المقياس من مقاس معروف — الدقة محكومة بقراءة الشريط بتاعك بس.</div>';
+    else {
+      const pct=m.acc*100;
+      if(pct>4) w+='<div class="msg warn">⚠ ورقة الـ A4 صغيرة في الصورة فالمقياس تقريبي (±'+pct.toFixed(0)+'٪ ≈ ±'
+        +(m.W*m.acc).toFixed(0)+' سم على العرض). كبّر وظبّط أركانها، أو الأحسن استخدم «مقاس عندك بالمتر».</div>';
+      else w+='<div class="msg ok">✔ دقة المقياس المتوقعة ±'+pct.toFixed(1)+'٪ (≈ ±'+(m.W*m.acc).toFixed(0)+' سم على العرض).</div>';
+      if(m.skew>.06) w+='<div class="msg warn">⚠ نسبة الورقة في الصورة مش مظبوطة — يا إما ركن غلط، يا إما الورقة مش في نفس مستوى الشباك.</div>';
+    }
   }
+  const sane = !!m && m.W>=25 && m.W<=700 && m.H>=25 && m.H<=700;
+  if(m && !sane) w+='<div class="msg err">✕ المقاس ده مش منطقي ('+(m.W/100).toFixed(2)+' × '
+    +(m.H/100).toFixed(2)+' م) — غالبًا الأركان اتحطت غلط أو المقاس المعروف مكتوب غلط. صلّحه قبل ما تكمّل.</div>';
   $('resNote').innerHTML=w;
-  $('bUse').disabled=!m;
+  $('bUse').disabled=!sane;
 }
-const toI=e=>{const r=cv.getBoundingClientRect();
-  return [(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height];};
 function loupe(p){
-  const r=cv.getBoundingClientRect(), s=cv.width/r.width;
+  const r=cv.getBoundingClientRect(), s=cv.width/r.width, q=toC(p);
   lc.clearRect(0,0,128,128); lc.save();
   lc.beginPath(); lc.arc(64,64,64,0,7); lc.clip();
-  lc.drawImage(im,p[0]-30,p[1]-30,60,60,0,0,128,128);
+  lc.fillStyle='#fff'; lc.fillRect(0,0,128,128);
+  const zz=5, half=64/zz;
+  lc.drawImage(im, p[0]-half, p[1]-half, half*2, half*2, 0,0,128,128);
   lc.strokeStyle='#E8B730'; lc.lineWidth=1.5;
-  lc.beginPath(); lc.moveTo(64,44); lc.lineTo(64,84); lc.moveTo(44,64); lc.lineTo(84,64); lc.stroke();
+  lc.beginPath(); lc.moveTo(64,40); lc.lineTo(64,88); lc.moveTo(40,64); lc.lineTo(88,64); lc.stroke();
   lc.restore();
   lp.style.display='block';
-  lp.style.left=Math.max(4,Math.min(r.width-132,p[0]/s-64))+'px';
-  lp.style.top=Math.max(4,p[1]/s-146)+'px';
+  lp.style.left=Math.max(4,Math.min(r.width-132,q[0]/s-64))+'px';
+  lp.style.top=Math.max(4,q[1]/s-146)+'px';
 }
+/* صباع واحد: يحط أو يسحب نقطة · صباعين: تكبير وتحريك */
+const PT=new Map(); let pinch=null;
 cv.addEventListener('pointerdown',e=>{
   if(!im)return; e.preventDefault(); cv.setPointerCapture(e.pointerId);
+  PT.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(PT.size===2){
+    if(drag>=0&&P.length&&drag===P.length-1&&!pinch) P.pop();   /* ألغي النقطة اللي اتحطت غلط */
+    drag=-1; lp.style.display='none';
+    const v=Array.from(PT.values());
+    pinch={d:Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y), z:VZ,
+           mx:(v[0].x+v[1].x)/2, my:(v[0].y+v[1].y)/2, vx:VX, vy:VY};
+    upd(); return;
+  }
+  if(PT.size>2) return;
   const p=toI(e), s=cv.width/cv.getBoundingClientRect().width;
-  let near=-1,best=26*s;
+  let near=-1,best=28*s/VZ;
   P.forEach((q,i)=>{if(skip[i])return; const d=D(p,q); if(d<best){best=d;near=i;}});
-  if(near>=0) drag=near; else if(P.length<10){P.push(p); drag=P.length-1;}
+  if(near>=0) drag=near;
+  else if(P.length<nPts()){P.push(p); drag=P.length-1;}
   if(drag>=0){render(drag); loupe(P[drag]);}
   upd();
 });
-cv.addEventListener('pointermove',e=>{if(drag<0)return; e.preventDefault();
-  P[drag]=toI(e); render(drag); loupe(P[drag]); upd();});
-['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{drag=-1; lp.style.display='none'; upd();}));
+cv.addEventListener('pointermove',e=>{
+  if(!PT.has(e.pointerId))return;
+  PT.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinch&&PT.size===2){
+    e.preventDefault();
+    const v=Array.from(PT.values()), d=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);
+    const r=cv.getBoundingClientRect(), k=cv.width/r.width;
+    const mx=((v[0].x+v[1].x)/2-r.left)*k, my=((v[0].y+v[1].y)/2-r.top)*k;
+    const pmx=(pinch.mx-r.left)*k, pmy=(pinch.my-r.top)*k;
+    VX=pinch.vx+(mx-pmx); VY=pinch.vy+(my-pmy);
+    const old=VZ; VZ=Math.min(8,Math.max(1,pinch.z*(d/pinch.d)));
+    VX=mx-(mx-VX)*(VZ/old); VY=my-(my-VY)*(VZ/old);
+    clampView(); zLbl(); render();
+    return;
+  }
+  if(drag<0)return; e.preventDefault();
+  P[drag]=toI(e); render(drag); loupe(P[drag]); upd();
+});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,e=>{
+  PT.delete(e.pointerId);
+  if(PT.size<2) pinch=null;
+  if(PT.size===0){drag=-1; lp.style.display='none'; upd();}
+}));
+cv.addEventListener('wheel',e=>{ if(!im)return; e.preventDefault();
+  const r=cv.getBoundingClientRect(), k=cv.width/r.width;
+  setZoom(VZ*(e.deltaY<0?1.15:1/1.15), (e.clientX-r.left)*k, (e.clientY-r.top)*k);
+},{passive:false});
+$('zIn').addEventListener('click',()=>setZoom(VZ*1.5));
+$('zOut').addEventListener('click',()=>setZoom(VZ/1.5));
+$('zFit').addEventListener('click',()=>{VZ=1;VX=0;VY=0;zLbl();render();});
 $('bUndo').addEventListener('click',()=>{const i=P.length-1; delete skip[i]; P.pop(); upd();});
 $('bSkip').addEventListener('click',()=>{skip[P.length]=true; P.push([0,0]); upd();});
-$('bAgain').addEventListener('click',()=>{P=[]; skip={}; openCam();});
+$('bFind').addEventListener('click',()=>{
+  if(!im) return;
+  const r=findPaper(cv);
+  if(!r){ $('resNote').innerHTML='<div class="msg warn">⚠ مالقيناش ورقة A4 — حط أركانها بإيدك.</div>'+$('resNote').innerHTML; return; }
+  while(P.length<I_PAPER){ skip[P.length]=true; P.push([0,0]); }
+  P.length=I_PAPER;
+  r.quad.forEach(p=>P.push([p[0],p[1]]));
+  upd();
+});
+document.querySelectorAll('input[name="sMode"]').forEach(r=>r.addEventListener('change',()=>{
+  if(sMode()==='known'&&P.length>I_PAPER) P.length=I_PAPER;
+  upd();}));
+$('knownVal').addEventListener('input',upd);
+$('knownSide').addEventListener('change',upd);
+$('bAgain').addEventListener('click',()=>{P=[]; skip={}; VZ=1;VX=0;VY=0; openCam();});
 $('bUse').addEventListener('click',()=>{
   if(!MEAS)return;
   fill({winW:MEAS.W/100, winH:MEAS.H/100,
         hStart:MEAS.sill!=null?MEAS.sill/100:null,
-        drop:MEAS.drop!=null?MEAS.drop/100:null},'ورقة A4');
+        drop:MEAS.drop!=null?MEAS.drop/100:null}, MEAS.srcT);
 });
 
-/* كاميرا حية + التقاط تلقائي */
-let str=null, raf=0, sdy=0, lastQ=null, tmr=0, lq=null;
+/* ===== الكاميرا: التصوير بإيدك، من غير أي التقاط تلقائي ===== */
+let str=null, raf=0;
 async function openCam(){
-  try{ str=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920}},audio:false}); }
+  try{ str=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:{ideal:'environment'},width:{ideal:3840},height:{ideal:2160}},audio:false}); }
   catch(e){ $('fileIn').click(); return; }
   $('cam').classList.add('on');
   const v=$('vid'); v.srcObject=str; await v.play();
-  sdy=0; lastQ=null; lq=null; tmr=setInterval(tick,220); ovl();
+  ovl();
 }
-function shutCam(){clearInterval(tmr); cancelAnimationFrame(raf);
+function shutCam(){ cancelAnimationFrame(raf);
   if(str){str.getTracks().forEach(t=>t.stop()); str=null;} $('cam').classList.remove('on');}
 function frame(){
   const v=$('vid'), c=frame._c||(frame._c=document.createElement('canvas'));
-  const s=Math.min(1,1600/Math.max(v.videoWidth,v.videoHeight));
-  c.width=Math.round(v.videoWidth*s); c.height=Math.round(v.videoHeight*s);
-  c.getContext('2d').drawImage(v,0,0,c.width,c.height); return c;
-}
-function tick(){
-  const v=$('vid'); if(!v.videoWidth)return;
-  const c=frame(), r=findPaper(c), ring=$('cRing').firstElementChild;
-  if(r){
-    const q=r.quad, mv=lastQ?Math.max.apply(null,q.map((p,i)=>D(p,lastQ[i]))):0;
-    sdy=(lastQ&&mv<c.width*.03)?sdy+1:1;
-    lastQ=q; lq=q.map(p=>[p[0]/c.width,p[1]/c.height]);
-    $('cT').textContent=sdy>=4?'ثبات — بنصوّر':'لقينا الورقة — ثبّت إيدك';
-    $('cS').textContent='خلي الشباك كامل في الصورة';
-    ring.style.clipPath='inset('+Math.max(0,100-sdy/4*100)+'% 0 0 0)';
-    if(sdy>=4) snap(c,q);
-  } else {
-    sdy=0; lastQ=null; lq=null;
-    $('cT').textContent='بندوّر على ورقة الـ A4…';
-    $('cS').textContent='الصق ورقة A4 على الحيطة جنب الشباك وصوّرهم مع بعض';
-    ring.style.clipPath='inset(100% 0 0 0)';
-  }
+  c.width=v.videoWidth; c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+  return c;
 }
 function ovl(){
   const c=$('ov'), v=$('vid'), r=v.getBoundingClientRect();
   if(c.width!==Math.round(r.width)||c.height!==Math.round(r.height)){c.width=Math.round(r.width); c.height=Math.round(r.height);}
   const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
-  x.strokeStyle='rgba(255,255,255,.35)'; x.lineWidth=2; x.setLineDash([10,10]);
-  x.strokeRect(c.width*.07,c.height*.15,c.width*.86,c.height*.62); x.setLineDash([]);
-  if(lq&&v.videoWidth){
-    const s=(v.videoWidth/v.videoHeight>c.width/c.height)?c.height/v.videoHeight:c.width/v.videoWidth;
-    const dw=v.videoWidth*s, dh=v.videoHeight*s, ox=(c.width-dw)/2, oy=(c.height-dh)/2;
-    x.beginPath(); lq.forEach((p,i)=>{const X=ox+p[0]*dw,Y=oy+p[1]*dh; i?x.lineTo(X,Y):x.moveTo(X,Y);});
-    x.closePath(); x.fillStyle='rgba(232,183,48,.25)'; x.fill();
-    x.strokeStyle='#E8B730'; x.lineWidth=4; x.stroke();}
+  x.strokeStyle='rgba(255,255,255,.28)'; x.lineWidth=1;
+  for(let i=1;i<3;i++){
+    x.beginPath(); x.moveTo(c.width*i/3,0); x.lineTo(c.width*i/3,c.height); x.stroke();
+    x.beginPath(); x.moveTo(0,c.height*i/3); x.lineTo(c.width,c.height*i/3); x.stroke();}
+  x.strokeStyle='rgba(232,183,48,.75)'; x.lineWidth=2; x.setLineDash([12,10]);
+  x.strokeRect(c.width*.08,c.height*.16,c.width*.84,c.height*.58); x.setLineDash([]);
   if(str) raf=requestAnimationFrame(ovl);
 }
-function snap(c,q){
+function snap(c){
   shutCam();
   cv.width=c.width; cv.height=c.height;
   const i=new Image();
-  i.onload=()=>{im=i; P=q?q.map(p=>[p[0],p[1]]):[]; skip={};
+  i.onload=()=>{im=i; P=[]; skip={}; VZ=1;VX=0;VY=0;
     $('work').classList.add('on'); upd(); $('work').scrollIntoView({behavior:'smooth',block:'start'});};
-  i.src=c.toDataURL('image/jpeg',.92);
+  i.src=c.toDataURL('image/jpeg',.95);
 }
 $('cX').addEventListener('click',shutCam);
-$('cShot').addEventListener('click',()=>{const c=frame(); const r=findPaper(c); snap(c,r&&r.quad);});
+$('cShot').addEventListener('click',()=>snap(frame()));
 $('fileIn').addEventListener('change',e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f)return;
   const i=new Image();
   i.onload=()=>{
-    const s=Math.min(1,2000/Math.max(i.naturalWidth,i.naturalHeight));
+    const s=Math.min(1,3000/Math.max(i.naturalWidth,i.naturalHeight));
     cv.width=Math.round(i.naturalWidth*s); cv.height=Math.round(i.naturalHeight*s);
-    cx2.drawImage(i,0,0,cv.width,cv.height);
-    im=i; const r=findPaper(cv); P=r?r.quad:[]; skip={};
-    $('work').classList.add('on'); upd();
-    if(!r) $('resNote').innerHTML='<div class="msg warn">⚠ مالقيناش ورقة A4 في الصورة — دوس على أركانها الأربعة بنفسك، وبعدها أركان الشباك.</div>'+$('resNote').innerHTML;
-    $('work').scrollIntoView({behavior:'smooth',block:'start'});};
+    im=i; P=[]; skip={}; VZ=1;VX=0;VY=0;
+    $('work').classList.add('on'); upd(); $('work').scrollIntoView({behavior:'smooth',block:'start'});};
   i.onerror=()=>alert('الصورة مش راضية تتفتح — جرّب تصوّر تاني.');
   i.src=URL.createObjectURL(f);
 });
@@ -1211,13 +1371,16 @@ $('wDemo').addEventListener('click',()=>{
     try{
       cv.width=i.naturalWidth; cv.height=i.naturalHeight;
       cx2.drawImage(i,0,0); im=i;
+      /* الترتيب الجديد: أركان الشباك ← الأرض ← السقف ← أركان الورقة */
+      const a4r=document.querySelector('input[name="sMode"][value="a4"]');
+      if(a4r) a4r.checked=true;
+      P=[]; skip={}; VZ=1; VX=0; VY=0;
+      DEMO.win.forEach(p=>P.push([p[0],p[1]]));
+      P.push([DEMO.floor[0],DEMO.floor[1]]);
+      P.push([DEMO.ceil[0],DEMO.ceil[1]]);
       const r=findPaper(cv);
-      P = r ? r.quad.map(p=>[p[0],p[1]]) : [];
-      if(P.length===4){
-        DEMO.win.forEach(p=>P.push([p[0],p[1]]));
-        P.push([DEMO.floor[0],DEMO.floor[1]]); P.push([DEMO.ceil[0],DEMO.ceil[1]]);
-      }
-      skip={}; $('work').classList.add('on'); upd();
+      if(r) r.quad.forEach(p=>P.push([p[0],p[1]]));
+      $('work').classList.add('on'); upd();
       const t=DEMO.truth, m=MEAS;
       const head = m ? ('<div class="msg ok"><b>مثال بصورة مقاساتها معروفة مسبقًا</b> — عشان تشوف العملية كلها قبل ما تجرّب على الطبيعة.<br>'
           +'ورقة الـ A4 اتلقت لوحدها (الأزرق) · أركان الشباك (الأصفر) والأرض والسقف (الأخضر) محطوطين لك.<br>'
