@@ -297,6 +297,7 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 .pf td,.pf th{border:1px solid #111;padding:0;vertical-align:middle}
 .pf th{background:#F1F3F6;font-size:11px;font-weight:800;padding:6px 3px;line-height:1.3}
 .pf td.l{background:#F1F3F6;font-weight:700;font-size:11.5px;padding:6px 8px;text-align:right;line-height:1.4}
+.hintx{display:block;font-weight:600;font-size:9.5px;color:var(--mut);margin-top:2px;line-height:1.35}
 .pf td.l b{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;
   background:var(--gold);color:#fff;font-size:10.5px;margin-inline-end:4px;vertical-align:-3px}
 .pf input,.pf select,.pf textarea{border:0;background:transparent;border-radius:0;text-align:center;
@@ -537,10 +538,10 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
     <table><colgroup><col style="width:34%"><col style="width:16%"><col style="width:34%"><col style="width:16%"></colgroup>
       <tr><td class="l"><b>١</b> العرض الكلي للحائط</td><td><input id="wallW" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
           <td class="l"><b>٨</b> ارتفاع الشباك</td><td><input id="winH" data-req type="number" inputmode="decimal" min="0" step="0.01"></td></tr>
-      <tr><td class="l"><b>٢</b> عرض الشباك / الوحدة</td><td><input id="winW" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
-          <td class="l"><b>٩</b> مقاس الستارة — عرض</td><td><input id="curW" readonly class="auto"></td></tr>
+      <tr><td class="l"><b>٢</b> عرض الشباك / الوحدة<span class="hintx">حلق الشباك نفسه — من غير الزيادات</span></td><td><input id="winW" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>٩</b> مقاس الستارة — عرض<span class="hintx">= ٢ + زيادة يمين + زيادة شمال</span></td><td><input id="curW" readonly class="auto"></td></tr>
       <tr><td class="l"><b>٣</b> من الحائط للشباك يمين</td><td><input id="gapR" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
-          <td class="l"><b>٩</b> مقاس الستارة — طول</td><td><input id="curH" readonly class="auto"></td></tr>
+          <td class="l"><b>٩</b> مقاس الستارة — طول<span class="hintx">من التراك للأرض</span></td><td><input id="curH" readonly class="auto"></td></tr>
       <tr><td class="l"><b>٤</b> من الحائط للشباك شمال</td><td><input id="gapL" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
           <td class="l"><b>١٠</b> عرض بيت الستارة</td><td><input id="boxW" data-box type="number" inputmode="decimal" min="0" step="0.01"></td></tr>
       <tr><td class="l"><b>٥</b> من الأرض للسقف</td><td><input id="hCeil" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
@@ -1961,16 +1962,16 @@ $('wDemo').addEventListener('click',()=>{
         +(m?('الطالع: عرض '+(m.W/100).toFixed(2)+' (الحقيقي '+t.winW+') · ارتفاع '+(m.H/100).toFixed(2)+' (الحقيقي '+t.winH+')'
            +' · من الأرض '+(m.sill/100).toFixed(2)+' (الحقيقي '+t.hStart+') · السقوط '+(m.drop/100).toFixed(2)+' (الحقيقي '+t.drop+')'
            +' · الحائط '+(m.wallW/100).toFixed(2)+' (الحقيقي '+t.wallW+')'):'')
+        +'<br><b>اللي الكاميرا مش بتعرفه سايبينه فاضي:</b> بيت الستارة (١٠–١٣) ونوع الشباك ونوع بيت الستارة — دول بتدخّلهم بنفسك.'
         +'<br>دوس «ارجع ظبّط النقط» وجرّب تحرّك أي نقطة وشوف الأرقام بتتغيّر.</span></div>');
       $('rbox').scrollIntoView({behavior:'smooth',block:'center'});
       $('sBr').value='المجمع'; $('sCli').value='هبة هشام'; $('sTel').value='01100036278';
       $('sAdr').value='التجمع الخامس — القاهرة الجديدة'; $('sRoom').value='ريسبشن'; $('sUnit').value='١/٢';
       $('sDate').value=new Date().toISOString().slice(0,10);
       $('sDue').value=new Date(Date.now()+12096e5).toISOString().slice(0,10);
-      $('boxW').value='3.28'; $('boxH').value='18'; $('boxD').value='22'; $('boxF').value='2.40';
+      /* بيت الستارة ونوع الشباك مش بيتقروا من الصورة — البائع بيدخّلهم بنفسه */
       const pk=(n,v)=>{const e=document.querySelector('input[name="'+n+'"][value="'+v+'"]'); if(e)e.checked=true;};
-      pk('boxKind','مسطح'); pk('winKind','جرار'); pk('oType','تركيب'); pk('oState','جديد');
-      pk('oOpen','جرار'); pk('oDec','بيت ستارة');
+      pk('oType','تركيب'); pk('oState','جديد');
       $('oSell').value='هايدي محمد';
       LAY=[{id:uid++,type:'light',style:'wave',wClass:'double',fH:'2.80',gather:2,finish:'gathered',heavy:'closed',code:'2',name:'Chianti',ex:''},
            {id:uid++,type:'heavy',style:'wave',wClass:'double',fH:'2.80',gather:2,finish:'gathered',heavy:'closed',code:'18',name:'Velvet 01',ex:''}];
