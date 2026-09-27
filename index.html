@@ -286,15 +286,106 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
   border-radius:var(--r2);color:var(--mut);font-size:12.5px;text-align:center;padding:12px;background:#F9FAFC}
 .ph img{max-width:100%;max-height:190px;border-radius:9px;display:block}
 
+/* ============ الورقة — نسخة من النموذج الورقي ============ */
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;font-weight:700;color:var(--ink2);margin:0 0 10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px;border:1px solid rgba(0,0,0,.18)}
+.legend .ln{background:var(--needBg);border-color:#EBC978}
+.legend .lo{background:var(--okBg)} .legend .la{background:var(--autoBg)} .legend .le{background:var(--errBg)}
+.paper{background:var(--card);border-radius:var(--r);box-shadow:var(--sh2);padding:12px;overflow:hidden}
+.pf{border:1.6px solid #111;padding:10px;background:#fff}
+.pf table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
+.pf td,.pf th{border:1px solid #111;padding:0;vertical-align:middle}
+.pf th{background:#F1F3F6;font-size:11px;font-weight:800;padding:6px 3px;line-height:1.3}
+.pf td.l{background:#F1F3F6;font-weight:700;font-size:11.5px;padding:6px 8px;text-align:right;line-height:1.4}
+.pf td.l b{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;
+  background:var(--gold);color:#fff;font-size:10.5px;margin-inline-end:4px;vertical-align:-3px}
+.pf input,.pf select,.pf textarea{border:0;background:transparent;border-radius:0;text-align:center;
+  padding:9px 7px;min-height:40px;font-size:14px;width:100%;box-shadow:none}
+.pf textarea{text-align:right;min-height:52px;padding:8px}
+.pf select{padding-inline-start:26px;background-position:calc(9px) calc(50% - 2px),calc(14px) calc(50% - 2px)}
+.pf input:focus,.pf select:focus,.pf textarea:focus{box-shadow:inset 0 0 0 2.5px var(--gold);outline:none}
+.pf input.need,.pf select.need{background:var(--needBg);box-shadow:inset 0 0 0 1.5px #D9A93A}
+.pf input.filled,.pf select.filled{background:var(--okBg)}
+.pf input.auto,.pf input.calc{background:var(--autoBg);font-weight:800}
+.pf input.calc{font-size:16px;color:var(--auto)}
+.pf input.bad{background:var(--errBg);box-shadow:inset 0 0 0 1.5px var(--err)}
+.pf input[readonly]{cursor:default}
+/* رأس الورقة */
+.phead{display:flex;align-items:stretch;gap:7px;margin-bottom:8px}
+.ptitle{flex:1;display:grid;place-items:center;border:1.6px solid #111;font-size:16px;
+  font-weight:900;text-align:center;padding:8px;letter-spacing:-.02em}
+.pside{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:124px}
+.plogo{min-width:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:900;font-size:11px;text-align:center;gap:2px}
+.plogo .mk{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--deep),#2A3B52);color:var(--gold2);font-size:14px}
+.plogo small{font-size:7px;letter-spacing:.15em;font-weight:600;color:var(--mut)}
+.nb{display:flex;align-items:center;border:1.4px solid #111}
+.nb em{font-style:normal;padding:4px 7px;font-size:10.5px;font-weight:800;
+  border-inline-end:1.4px solid #111;white-space:nowrap;background:#F1F3F6}
+.nb input{font-size:12.5px;font-weight:700;min-height:32px;padding:4px}
+.ckbox{border:1.4px solid #111;padding:4px 7px;display:flex;flex-direction:column;gap:3px}
+/* مربعات الاختيار زي الورق */
+.ck{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;
+  cursor:pointer;white-space:nowrap;padding:3px 0}
+.ck input{display:none}
+.ck i{width:17px;height:17px;border:1.6px solid #111;display:inline-grid;place-items:center;
+  font-style:normal;font-size:13px;flex:none;background:#fff;border-radius:3px;transition:.12s}
+.ck input:checked + i{background:var(--deep);border-color:var(--deep);color:#fff}
+.ck input:checked + i::before{content:'✔';font-weight:900;font-size:11px}
+.cks{display:flex;flex-wrap:wrap;gap:6px 16px;padding:7px 9px;align-items:center}
+.cks.need{background:var(--needBg);box-shadow:inset 0 0 0 1.5px #D9A93A}
+/* عناوين الأقسام */
+.psec{margin:11px 0 4px;font-weight:900;font-size:13px;border-bottom:1.6px solid #111;
+  padding-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.shint{margin-inline-start:auto;font-size:10.5px;font-weight:700;color:var(--mut);display:none}
+/* صناديق الرسم */
+.pbox{padding:0!important;vertical-align:top}
+.pbox>b{display:block;font-size:11px;padding:6px 8px;border-bottom:1px solid #111;
+  background:#F1F3F6;text-align:right;font-weight:800}
+.pbox .in2{padding:8px;display:grid;place-items:center;min-height:132px}
+.pbox img{max-width:100%;max-height:210px;border-radius:6px}
+.phld{color:var(--mut);font-size:11.5px;text-align:center;line-height:1.6}
+.pbox .no{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:5px;
+  background:var(--gold);color:#fff;font-size:10px;margin-inline-end:4px;vertical-align:-3px}
+.pnote{padding:7px!important;text-align:center;font-size:11px;font-weight:700;line-height:1.5}
+.psig{display:flex;gap:6px;margin-top:16px}
+.psig div{flex:1;text-align:center;font-size:10.5px;border-top:1.4px solid #111;
+  padding-top:6px;font-weight:800;color:var(--ink2)}
+.prow{display:flex;gap:9px;align-items:center;margin-top:7px;flex-wrap:wrap}
+.prow span{font-size:12.5px;font-weight:800}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pf table.wide td{padding:2px}
+.pf table.wide input,.pf table.wide select{min-height:36px;font-size:13px;padding:7px 4px;
+  border:1px solid var(--line2);border-radius:7px}
+.pf table.wide td.calc{font-weight:900;font-size:16px;color:var(--auto);background:var(--autoBg)}
+.pf table.wide td.calc.pend{color:var(--need);background:var(--needBg);font-size:10.5px;
+  font-weight:700;line-height:1.35;padding:6px 3px}
+
 /* ============ موبايل ============ */
 @media(max-width:700px){
-  .wrap{padding:0 11px}
+  .wrap{padding:0 9px}
+  .paper{padding:8px;border-radius:12px}
+  .pf{padding:7px;border-width:1.3px}
+  .phead{flex-wrap:wrap;gap:6px}
+  .ptitle{order:-1;flex:1 1 100%;width:auto;font-size:16px;padding:9px 7px}
+  .pside,.ckbox{font-size:11.5px}
+  .ckbox{padding:4px 6px}
+  .pside{flex:1 1 0;min-width:0} .plogo{flex:0 0 78px;min-width:0;font-size:9px;order:-2}
+  .plogo .mk{width:24px;height:24px;font-size:12px}
+  .nb em{font-size:9.5px;padding:3px 5px} .nb input{font-size:11.5px;min-height:28px}
+  .pf td.l{font-size:11px;padding:5px 6px}
+  .pf input,.pf select{font-size:13.5px;min-height:38px;padding:8px 4px}
+  .psec{font-size:12px} .shint{display:inline}
+  .pf table.wide{min-width:680px}
+  #acc.wide,#tok.wide{min-width:700px}
+  .cks{gap:5px 12px;padding:6px} .ck{font-size:12px}
+  .psig{flex-wrap:wrap;gap:9px 6px} .psig div{flex:1 1 45%;font-size:9.5px}
+  .pbox .in2{min-height:104px}
   .tabs{padding:0 11px}
   .hero{padding:18px 4px 6px} .hero h1{font-size:21px}
   .card>header{padding:13px 13px 0} .card .body{padding:12px 13px 14px} .sub{padding:2px 13px 0}
   .tw{margin:0 -13px;padding:0 13px}
-  table.t{display:none}
-  .fcards{display:block}
   .stats{grid-template-columns:1fr 1fr}
   .fset,.fset.two{grid-template-columns:1fr}
   .fset.keep2{grid-template-columns:1fr 1fr}
@@ -418,149 +509,181 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 
 <!-- ═══════════ ٢ · المعاينة ═══════════ -->
 <section id="s1" style="display:none">
-  <div class="card"><header><h2><span class="num">١</span>بيانات العميل</h2></header>
-    <div class="body"><div class="fset two">
-      <div class="fld"><label>فــرع <span class="chip n">مطلوب</span></label><input id="sBr" data-req></div>
-      <div class="fld"><label>اسم العميل <span class="chip n">مطلوب</span></label><input id="sCli" data-req></div>
-      <div class="fld"><label>التليفون <span class="chip n">مطلوب</span></label><input id="sTel" data-req type="tel" inputmode="tel" placeholder="01xxxxxxxxx"></div>
-      <div class="fld"><label>العنوان <span class="chip n">مطلوب</span></label><input id="sAdr" data-req></div>
-      <div class="fld"><label>اسم الغرفة <span class="chip n">مطلوب</span></label><input id="sRoom" data-req placeholder="ريسبشن"></div>
-      <div class="fld"><label>رقم الوحدة / الشباك <span class="chip n">مطلوب</span></label><input id="sUnit" data-req placeholder="١/٢"></div>
-      <div class="fld"><label>التاريخ <span class="chip n">مطلوب</span></label><input id="sDate" data-req type="date"></div>
-      <div class="fld"><label>تاريخ التسليم <span class="chip n">مطلوب</span></label><input id="sDue" data-req type="date"></div>
-    </div></div></div>
+  <div class="legend">
+    <span><i class="ln"></i>مطلوب</span><span><i class="lo"></i>اتملى</span>
+    <span><i class="la"></i>محسوب</span><span><i class="le"></i>تعارض</span>
+  </div>
+  <div class="paper"><div class="pf">
 
-  <div class="card"><header><h2><span class="num">٢</span>مقاسات الوحدة</h2>
-    <div class="g"></div><span class="chip n" id="mChip">محتاج مقاسات</span></header>
-    <div class="sub">كل المقاسات بالمتر — نفس ترقيم النموذج الورقي. اضغط أي رقم في الرسم يوديك لخانته.</div>
-    <div class="body">
-      <div class="fset">
-        <div class="fld"><label><span class="no">١</span>العرض الكلي للحائط <span class="chip n">مطلوب</span></label><input id="wallW" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٢</span>عرض الشباك <span class="chip n">مطلوب</span></label><input id="winW" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٣</span>من الحائط للشباك يمين <span class="chip n">مطلوب</span></label><input id="gapR" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٤</span>من الحائط للشباك شمال <span class="chip n">مطلوب</span></label><input id="gapL" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٥</span>من الأرض للسقف <span class="chip n">مطلوب</span></label><input id="hCeil" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٦</span>من الأرض لبداية الشباك <span class="chip n">مطلوب</span></label><input id="hStart" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٧</span>السقوط (السقف ← الشباك) <span class="chip n">مطلوب</span></label><input id="drop" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٨</span>ارتفاع الشباك <span class="chip n">مطلوب</span></label><input id="winH" data-req type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        <div class="fld"><label><span class="no">٩</span>مقاس الستارة — عرض <span class="chip a">محسوب</span></label><input id="curW" readonly class="auto"></div>
-        <div class="fld"><label><span class="no">٩</span>مقاس الستارة — طول <span class="chip a">محسوب</span></label><input id="curH" readonly class="auto"></div>
+    <div class="phead">
+      <div class="pside">
+        <div class="nb"><em>الوحدة</em><input id="sUnit" data-req placeholder="١/٢"></div>
+        <div class="nb"><em>التاريخ</em><input id="sDate" data-req type="date"></div>
       </div>
+      <div class="ptitle">نموذج معاينة ستارة</div>
+      <div class="plogo"><span class="mk">◈</span>NAGUIB SELIM<small>FABRICA DE CORTINAS</small></div>
+    </div>
 
-      <div class="fset two" style="margin-top:14px">
-        <div class="fld"><label>نوع بيت الستارة <span class="chip n">مطلوب</span></label>
-          <div class="seg sm" data-req="boxKind">
-            <label><input type="radio" name="boxKind" value="مسطح">مسطح</label>
-            <label><input type="radio" name="boxKind" value="مسلح">مسلح</label>
-            <label><input type="radio" name="boxKind" value="شبك">شبك</label>
-            <label><input type="radio" name="boxKind" value="مفيش">مفيش</label></div></div>
-        <div class="fld"><label>نوع الشباك <span class="chip n">مطلوب</span></label>
-          <div class="seg sm" data-req="winKind">
-            <label><input type="radio" name="winKind" value="مفصلي">مفصلي</label>
-            <label><input type="radio" name="winKind" value="جرار">جرار</label>
-            <label><input type="radio" name="winKind" value="خيس بودي">خيس بودي</label></div></div>
-        <div class="fld"><label>الستارة بتنتهي عند</label>
-          <div class="seg sm">
-            <label><input type="radio" name="cEnd" value="floor" checked>الأرض</label>
-            <label><input type="radio" name="cEnd" value="short">قصيرة</label></div></div>
-        <div class="fld keep2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="fld"><label>نزول تحت الحلق (سم)</label><input id="below" type="number" min="0" step="1" value="15"></div>
-          <div class="fld"><label>التركيب فوق الحلق (سم)</label><input id="above" type="number" min="0" step="1" value="20"></div></div>
-      </div>
+    <table><colgroup><col style="width:15%"><col style="width:35%"><col style="width:15%"><col style="width:35%"></colgroup>
+      <tr><td class="l">فــرع</td><td><input id="sBr" data-req></td>
+          <td class="l">اسم الغرفة</td><td><input id="sRoom" data-req placeholder="ريسبشن"></td></tr>
+      <tr><td class="l">اسم العميل</td><td><input id="sCli" data-req></td>
+          <td class="l">تاريخ التسليم</td><td><input id="sDue" data-req type="date"></td></tr>
+      <tr><td class="l">التليفون</td><td><input id="sTel" data-req type="tel" inputmode="tel" placeholder="01xxxxxxxxx"></td>
+          <td class="l">العنوان</td><td><input id="sAdr" data-req></td></tr>
+    </table>
 
-      <div id="boxWrap" style="display:none;margin-top:14px">
-        <div class="fset">
-          <div class="fld"><label><span class="no">١٠</span>عرض بيت الستارة <span class="chip n">مطلوب</span></label><input id="boxW" data-box type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-          <div class="fld"><label><span class="no">١١</span>ارتفاع بيت الستارة <span class="chip n">مطلوب</span></label><input id="boxH" data-box type="number" inputmode="decimal" min="0" step="1" placeholder="سم"></div>
-          <div class="fld"><label><span class="no">١٢</span>عمق بيت الستارة <span class="chip n">مطلوب</span></label><input id="boxD" data-box type="number" inputmode="decimal" min="0" step="1" placeholder="سم"></div>
-          <div class="fld"><label><span class="no">١٣</span>من الأرض لبيت الستارة داخليًا <span class="chip n">مطلوب</span></label><input id="boxF" data-box type="number" inputmode="decimal" min="0" step="0.01" placeholder="م"></div>
-        </div></div>
+    <div class="psec">✱ المقاسات بالمتر — مقاس لكل شباك / وحدة <span class="chip n" id="mChip">محتاج مقاسات</span></div>
+    <table><colgroup><col style="width:34%"><col style="width:16%"><col style="width:34%"><col style="width:16%"></colgroup>
+      <tr><td class="l"><b>١</b> العرض الكلي للحائط</td><td><input id="wallW" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>٨</b> ارتفاع الشباك</td><td><input id="winH" data-req type="number" inputmode="decimal" min="0" step="0.01"></td></tr>
+      <tr><td class="l"><b>٢</b> عرض الشباك / الوحدة</td><td><input id="winW" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>٩</b> مقاس الستارة — عرض</td><td><input id="curW" readonly class="auto"></td></tr>
+      <tr><td class="l"><b>٣</b> من الحائط للشباك يمين</td><td><input id="gapR" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>٩</b> مقاس الستارة — طول</td><td><input id="curH" readonly class="auto"></td></tr>
+      <tr><td class="l"><b>٤</b> من الحائط للشباك شمال</td><td><input id="gapL" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>١٠</b> عرض بيت الستارة</td><td><input id="boxW" data-box type="number" inputmode="decimal" min="0" step="0.01"></td></tr>
+      <tr><td class="l"><b>٥</b> من الأرض للسقف</td><td><input id="hCeil" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>١١</b> ارتفاع بيت الستارة (سم)</td><td><input id="boxH" data-box type="number" inputmode="decimal" min="0" step="1"></td></tr>
+      <tr><td class="l"><b>٦</b> من الأرض لبداية الشباك</td><td><input id="hStart" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>١٢</b> عمق بيت الستارة (سم)</td><td><input id="boxD" data-box type="number" inputmode="decimal" min="0" step="1"></td></tr>
+      <tr><td class="l"><b>٧</b> من السقف للشباك (السقوط)</td><td><input id="drop" data-req type="number" inputmode="decimal" min="0" step="0.01"></td>
+          <td class="l"><b>١٣</b> من الأرض لبيت الستارة داخليًا</td><td><input id="boxF" data-box type="number" inputmode="decimal" min="0" step="0.01"></td></tr>
+    </table>
 
-      <div class="fset two" style="margin-top:14px">
-        <div class="fld"><label>رسم توضيحي للوحدة</label><div class="diag" id="diag"></div></div>
-        <div class="fld"><label><span class="no">١٤</span>صورة الشباك</label>
-          <div class="ph" id="picPh">اضغط لاختيار صورة الشباك<input id="sPic" type="file" accept="image/*" capture="environment" style="position:absolute;opacity:0;width:0;height:0"></div>
-          <img id="picImg" style="display:none;max-width:100%;border-radius:12px">
-          <button class="btn s noP" type="button" onclick="document.getElementById('sPic').click()">اختر صورة</button></div>
-      </div>
+    <table style="margin-top:5px"><colgroup><col style="width:21%"><col style="width:47%"><col style="width:17%"><col style="width:15%"></colgroup>
+      <tr><td class="l">تحديد نوع بيت الستارة</td>
+          <td><div class="cks" data-req="boxKind">
+            <label class="ck"><input type="radio" name="boxKind" value="مسطح"><i></i>مسطح</label>
+            <label class="ck"><input type="radio" name="boxKind" value="مسلح"><i></i>مسلح</label>
+            <label class="ck"><input type="radio" name="boxKind" value="شبك"><i></i>شبك</label>
+            <label class="ck"><input type="radio" name="boxKind" value="مفيش"><i></i>مفيش</label></div></td>
+          <td class="l">التركيب فوق الحلق (سم)</td><td><input id="above" type="number" min="0" step="1" value="20"></td></tr>
+      <tr><td class="l">تحديد نوع الشباك</td>
+          <td><div class="cks" data-req="winKind">
+            <label class="ck"><input type="radio" name="winKind" value="مفصلي"><i></i>مفصلي</label>
+            <label class="ck"><input type="radio" name="winKind" value="جرار"><i></i>جرار</label>
+            <label class="ck"><input type="radio" name="winKind" value="خيس بودي"><i></i>خيس بودي</label></div></td>
+          <td class="l">نزول تحت الحلق (سم)</td><td><input id="below" type="number" min="0" step="1" value="15"></td></tr>
+      <tr><td class="l">الستارة بتنتهي عند</td>
+          <td colspan="3"><div class="cks">
+            <label class="ck"><input type="radio" name="cEnd" value="floor" checked><i></i>الأرض</label>
+            <label class="ck"><input type="radio" name="cEnd" value="short"><i></i>قصيرة</label></div></td></tr>
+    </table>
 
-      <div id="note1" style="margin-top:12px"></div>
-      <div class="stats" id="sout" style="display:none;margin-top:12px"></div>
-    </div></div>
+    <table style="margin-top:6px"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tr>
+      <td class="pbox"><b>رسم توضيحي للوحدة — اضغط أي رقم</b><div class="in2"><div id="diag"></div></div></td>
+      <td class="pbox"><b><span class="no">١٤</span> صورة الشباك</b>
+        <div class="in2"><div class="phld" id="picPh">اضغط «اختر صورة» وهتظهر هنا</div>
+          <img id="picImg" style="display:none">
+          <input id="sPic" type="file" accept="image/*" capture="environment" hidden>
+          <button class="btn s noP" type="button" id="bPic" style="margin-top:8px">اختر صورة</button></div></td>
+    </tr></table>
+
+    <table style="margin-top:5px"><tr><td class="pnote">المقاسات تم رفعها بمعرفة العميل وهو مسئول عنها وأي خطأ بها هي مسئولية العميل</td></tr></table>
+    <div class="psig"><div>توقيع العميل</div><div>مهندس التشغيل</div><div>رئيس القسم</div><div>اعتماد مدير الفرع</div></div>
+  </div></div>
+
+  <div id="note1"></div>
+  <div class="stats" id="sout" style="display:none;margin-top:12px"></div>
 </section>
 
 <!-- ═══════════ ٣ · أمر التشغيل ═══════════ -->
 <section id="s2" style="display:none">
-  <div class="card"><header><h2><span class="num">١</span>بيانات الأمر</h2></header>
-    <div class="body"><div class="fset two">
-      <div class="fld"><label>نوع الأمر <span class="chip n">مطلوب</span></label>
-        <div class="seg sm" data-req="oType">
-          <label><input type="radio" name="oType" value="تركيب">تركيب</label>
-          <label><input type="radio" name="oType" value="تسليم">تسليم</label></div></div>
-      <div class="fld"><label>الحالة <span class="chip n">مطلوب</span></label>
-        <div class="seg sm" data-req="oState">
-          <label><input type="radio" name="oState" value="جديد">جديد</label>
-          <label><input type="radio" name="oState" value="استكمال">استكمال</label>
-          <label><input type="radio" name="oState" value="تعديل">تعديل</label></div></div>
-      <div class="fld"><label>اسم البائع <span class="chip n">مطلوب</span></label><input id="oSell" data-req></div>
-      <div class="fld"><label>رقم الإذن</label><input id="oNo" placeholder="اختياري"></div>
-    </div></div></div>
+  <div class="legend">
+    <span><i class="ln"></i>مطلوب</span><span><i class="lo"></i>اتملى</span><span><i class="la"></i>محسوب تلقائيًا</span>
+  </div>
+  <div class="paper"><div class="pf">
 
-  <div class="card"><header><h2><span class="num">٢</span>عرض التركيب</h2>
-    <div class="g"></div><span class="chip a">من المعاينة</span></header>
-    <div class="body">
-      <div class="stats" id="wout"></div>
-      <div class="fset two" style="margin-top:13px">
-        <div class="fld"><label>زيادة يمين (سم) <span class="chip n">مطلوب</span><span style="color:var(--mut);font-weight:600">فاضي: <span id="gRs">—</span></span></label>
-          <input id="extR" data-req type="number" min="0" step="1" value="15"></div>
-        <div class="fld"><label>زيادة شمال (سم) <span class="chip n">مطلوب</span><span style="color:var(--mut);font-weight:600">فاضي: <span id="gLs">—</span></span></label>
-          <input id="extL" data-req type="number" min="0" step="1" value="15"></div>
-        <div class="fld"><label>نوع الفتح <span class="chip n">مطلوب</span></label>
-          <div class="seg sm" data-req="oOpen">
-            <label><input type="radio" name="oOpen" value="مفصلي">مفصلي</label>
-            <label><input type="radio" name="oOpen" value="جرار">جرار</label>
-            <label><input type="radio" name="oOpen" value="ثابت">ثابت</label></div></div>
-        <div class="fld"><label>الديكور <span class="chip n">مطلوب</span></label>
-          <div class="seg sm" data-req="oDec">
-            <label><input type="radio" name="oDec" value="مفصلي">مفصلي</label>
-            <label><input type="radio" name="oDec" value="كورنيشة">كورنيشة</label>
-            <label><input type="radio" name="oDec" value="بيت ستارة">بيت ستارة</label>
-            <label><input type="radio" name="oDec" value="سقف عادي">سقف عادي</label></div></div>
+    <div class="phead">
+      <div class="pside">
+        <div class="nb"><em>شبك رقم</em><input id="oUnit" readonly class="auto"></div>
+        <div class="ckbox">
+          <label class="ck"><input type="radio" name="oType" value="تركيب"><i></i>تركيب</label>
+          <label class="ck"><input type="radio" name="oType" value="تسليم"><i></i>تسليم</label></div>
       </div>
-      <div id="note2" style="margin-top:11px"></div>
-    </div></div>
-
-  <div class="card"><header><h2><span class="num">٣</span>القماش</h2>
-    <div class="g"></div><span class="chip n" id="fChip">محتاج بيانات</span></header>
-    <div class="sub">أول ما السطر يكتمل، الأمتار وعدد العرض بيتحسبوا لوحدهم.</div>
-    <div class="body">
-      <div class="tw"><table class="t" id="ftab">
-        <thead><tr><th>نوع القماش</th><th>الكود</th><th>الصنف</th><th>عرض الخامة</th>
-          <th>ارتفاع الخامة</th><th>الأمتار</th><th>عدد العرض</th><th>نوع التفصيل</th><th>تطريز · تهديل</th><th></th></tr></thead>
-        <tbody id="ftb"></tbody></table></div>
-      <div class="fcards" id="fcards"></div>
-      <div style="display:flex;gap:9px;align-items:center;margin-top:11px;flex-wrap:wrap">
-        <button class="btn s" id="bAdd" type="button">＋ سطر خامة</button>
-        <div class="g"></div><span id="fsum" style="font-size:12.5px;font-weight:800"></span></div>
-    </div></div>
-
-  <div class="card"><header><h2><span class="num">٤</span>الإكسوار</h2></header>
-    <div class="sub">الكميات محسوبة من طول التراك — عدّلها لو محتاج واكتب الأكواد.</div>
-    <div class="body"><div class="tw"><table class="t" id="acc"></table></div></div></div>
-
-  <div class="card"><header><h2><span class="num">٥</span>البطانة والطقة والملاحظات</h2></header>
-    <div class="body">
-      <div class="fset two">
-        <div class="fld"><label>نوع البطانة</label>
-          <div class="seg sm">
-            <label><input type="checkbox" name="lin" value="تنجيد بوكس">تنجيد بوكس</label>
-            <label><input type="checkbox" name="lin" value="أويمة">أويمة</label>
-            <label><input type="checkbox" name="lin" value="استانلس">استانلس</label></div></div>
-        <div class="fld"><label>المتر (بطانة)</label><input id="linM" type="number" min="0" step="0.25"></div>
+      <div class="ptitle">أمر تشغيل مصنع الستائر</div>
+      <div class="pside" style="min-width:92px">
+        <div class="ckbox" data-req="oState">
+          <label class="ck"><input type="radio" name="oState" value="جديد"><i></i>جديد</label>
+          <label class="ck"><input type="radio" name="oState" value="استكمال"><i></i>استكمال</label>
+          <label class="ck"><input type="radio" name="oState" value="تعديل"><i></i>تعديل</label></div>
       </div>
-      <div class="tw" style="margin-top:13px"><table class="t" id="tok"></table></div>
-      <div class="fld" style="margin-top:13px"><label>ملاحظات المكتب الفني</label><textarea id="tNote" rows="2"></textarea></div>
-    </div></div>
+      <div class="plogo"><span class="mk">◈</span>NAGUIB SELIM<small>FABRICA DE CORTINAS</small></div>
+    </div>
+
+    <table><colgroup><col style="width:15%"><col style="width:30%"><col style="width:20%"><col style="width:35%"></colgroup>
+      <tr><td class="l">التاريخ</td><td><input id="oDate" readonly class="auto"></td>
+          <td class="l">اسم الفرع</td><td><input id="oBr" readonly class="auto"></td></tr>
+      <tr><td class="l">اسم العميل</td><td><input id="oCli" readonly class="auto"></td>
+          <td class="l">اسم البائع</td><td><input id="oSell" data-req></td></tr>
+      <tr><td class="l">رقم التليفون</td><td><input id="oTel" readonly class="auto"></td>
+          <td class="l">تاريخ التسليم المتوقع</td><td><input id="oDue" readonly class="auto"></td></tr>
+      <tr><td class="l">اسم الغرفة</td><td><input id="oRoom" readonly class="auto"></td>
+          <td class="l">رقم الإذن</td><td><input id="oNo" placeholder="اختياري"></td></tr>
+    </table>
+
+    <table style="margin-top:6px"><colgroup><col style="width:50%"><col style="width:22%"><col style="width:14%"><col style="width:14%"></colgroup>
+      <tr><td class="pbox" rowspan="5"><b>رسم توضيحي للموديل</b>
+            <div class="in2"><div class="phld" id="drawPh">ارفع صورة أو رسم للموديل</div>
+              <img id="drawImg" style="display:none">
+              <input id="drawIn" type="file" accept="image/*" hidden>
+              <button class="btn s noP" type="button" id="bDraw" style="margin-top:8px">ارفع صورة</button></div></td>
+          <td class="l">العرض</td><td colspan="2"><input id="oW" readonly class="calc"></td></tr>
+      <tr><td class="l">الارتفاع</td><td colspan="2"><input id="oH" readonly class="calc"></td></tr>
+      <tr><td class="l">زيادة يمين (سم)</td><td><input id="extR" data-req type="number" min="0" step="1" value="15"></td>
+          <td class="l" style="font-size:10.5px">فاضي<br><span id="gRs">—</span></td></tr>
+      <tr><td class="l">زيادة شمال (سم)</td><td><input id="extL" data-req type="number" min="0" step="1" value="15"></td>
+          <td class="l" style="font-size:10.5px">فاضي<br><span id="gLs">—</span></td></tr>
+      <tr><td class="l">طول التراك</td><td colspan="2"><input id="oTr" readonly class="calc"></td></tr>
+    </table>
+
+    <table style="margin-top:5px"><colgroup><col style="width:14%"><col style="width:86%"></colgroup>
+      <tr><td class="l">نوع الفتح</td><td><div class="cks" data-req="oOpen">
+        <label class="ck"><input type="radio" name="oOpen" value="مفصلي"><i></i>مفصلي</label>
+        <label class="ck"><input type="radio" name="oOpen" value="جرار"><i></i>جرار</label>
+        <label class="ck"><input type="radio" name="oOpen" value="ثابت"><i></i>ثابت</label></div></td></tr>
+      <tr><td class="l">الديكور</td><td><div class="cks" data-req="oDec">
+        <label class="ck"><input type="radio" name="oDec" value="مفصلي"><i></i>مفصلي</label>
+        <label class="ck"><input type="radio" name="oDec" value="بيت ستارة"><i></i>بيت ستارة</label>
+        <label class="ck"><input type="radio" name="oDec" value="كورنيشة"><i></i>كورنيشة</label>
+        <label class="ck"><input type="radio" name="oDec" value="سقف عادي"><i></i>سقف عادي</label></div></td></tr>
+    </table>
+
+    <div class="psec">القماش : <span class="chip n" id="fChip">محتاج بيانات</span>
+      <span class="shint noP">↔ اسحب الجدول</span></div>
+    <div class="scrollx"><table id="ftab" class="wide">
+      <colgroup><col style="width:11%"><col style="width:8%"><col style="width:15%"><col style="width:11%">
+        <col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:12%"><col style="width:10%"><col style="width:4%"></colgroup>
+      <thead><tr><th>نوع القماش</th><th>الكود</th><th>الصنف</th><th>عرض الخامة</th><th>ارتفاع الخامة</th>
+        <th>الأمتار</th><th>عدد العرض</th><th>نوع التفصيل</th><th>تطريز/ليزر · تهديل</th><th></th></tr></thead>
+      <tbody id="ftb"></tbody></table></div>
+    <div class="prow noP"><button class="btn s" id="bAdd" type="button">＋ سطر خامة</button>
+      <div class="g"></div><span id="fsum"></span></div>
+
+    <div class="psec">الإكسـوار :<span class="shint noP">↔ اسحب الجدول</span></div>
+    <div class="scrollx"><table id="acc" class="wide"></table></div>
+
+    <table style="margin-top:6px"><colgroup><col style="width:14%"><col style="width:58%"><col style="width:12%"><col style="width:16%"></colgroup>
+      <tr><td class="l">نوع البطانة</td><td><div class="cks">
+          <label class="ck"><input type="checkbox" name="lin" value="تنجيد بوكس"><i></i>تنجيد بوكس</label>
+          <label class="ck"><input type="checkbox" name="lin" value="أويمة"><i></i>أويمة</label>
+          <label class="ck"><input type="checkbox" name="lin" value="استانلس"><i></i>استانلس</label></div></td>
+        <td class="l">المتر</td><td><input id="linM" type="number" min="0" step="0.25"></td></tr>
+    </table>
+
+    <div class="psec">الطقة :<span class="shint noP">↔ اسحب الجدول</span></div>
+    <div class="scrollx"><table id="tok" class="wide"></table></div>
+
+    <table style="margin-top:6px"><colgroup><col style="width:18%"><col style="width:82%"></colgroup>
+      <tr><td class="l">ملاحظات المكتب الفني</td><td><textarea id="tNote" rows="2"></textarea></td></tr></table>
+
+    <div class="psig"><div>توقيع البائع</div><div>مدير الفرع</div><div>توقيع العميل</div>
+      <div>المكتب الفني</div><div>مدير التشغيل</div></div>
+  </div></div>
+
+  <div id="note2"></div>
+  <div class="stats" id="wout" style="margin-top:12px"></div>
 </section>
 
 </div></div>
@@ -802,27 +925,9 @@ function rowTab(L,i){
     +'<td>'+selStyle(L)+subSel(L)+'</td><td>'+inp(L,'ex','—')+'</td>'
     +'<td><button class="btn xs" data-del type="button">حذف</button></td></tr>';
 }
-function rowCard(L,i){
-  return '<div class="fcard" data-id="'+L.id+'">'
-    +'<div class="fh"><span class="ix">'+(i+1)+'</span><b>خامة '+(i+1)+'</b><div class="g"></div>'
-    +'<button class="btn xs" data-del type="button">حذف</button></div>'
-    +'<div class="fb">'
-      +'<div class="fld"><label>نوع القماش</label>'+selType(L)+'</div>'
-      +'<div class="fld"><label>نوع التفصيل</label>'+selStyle(L)+'</div>'
-      +'<div class="fld"><label>الكود</label>'+inp(L,'code','18')+'</div>'
-      +'<div class="fld"><label>الصنف</label>'+inp(L,'name','Chianti')+'</div>'
-      +'<div class="fld"><label>عرض الخامة</label>'+selW(L)+'</div>'
-      +'<div class="fld"><label>ارتفاع الخامة (م)</label>'+inpN(L,'fH','2.80')+'</div>'
-      +(subSel(L)?'<div class="fld wide"><label>تفاصيل التفصيل</label>'+subSel(L)+'</div>':'')
-      +'<div class="fld wide"><label>تطريز / ليزر · تهديل</label>'+inp(L,'ex','—')+'</div>'
-    +'</div>'
-    +'<div class="fo"><div class="ob" data-c="m"><div class="k">الأمتار</div><div class="v">—</div></div>'
-    +'<div class="ob" data-c="p"><div class="k">عدد العرض</div><div class="v">—</div></div></div></div>';
-}
 function drawRows(){
   $('ftb').innerHTML=LAY.map(rowTab).join('');
-  $('fcards').innerHTML=LAY.map(rowCard).join('');
-  document.querySelectorAll('#ftb tr,[data-id].fcard').forEach(el=>{
+  document.querySelectorAll('#ftb tr').forEach(el=>{
     const id=+el.dataset.id, L=LAY.find(x=>x.id===id); if(!L)return;
     el.querySelectorAll('[data-k]').forEach(c=>{
       c.addEventListener(c.tagName==='SELECT'?'change':'input',()=>{
@@ -911,6 +1016,10 @@ const TOKR=['فرانشة','شرابة لم جنب','شرابة ديكور','ح�
     el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('flash'); el.focus({preventScroll:true});
     setTimeout(()=>el.classList.remove('flash'),1000);}));
 })();
+$('bPic').addEventListener('click',()=>$('sPic').click());
+$('bDraw').addEventListener('click',()=>$('drawIn').click());
+$('drawIn').addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return;
+  $('drawImg').src=URL.createObjectURL(f); $('drawImg').style.display=''; $('drawPh').style.display='none';});
 $('sPic').addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return;
   $('picImg').src=URL.createObjectURL(f); $('picImg').style.display=''; $('picPh').style.display='none';});
 
@@ -1490,8 +1599,14 @@ $('bRetake').addEventListener('click',openCam);
 /* ════════ التزامن والتقدم ════════ */
 function sync(){
   const o=order(); LAST=o;
+  /* بيانات العميل بتتنقل من المعاينة لأمر التشغيل */
+  [['sDate','oDate'],['sBr','oBr'],['sCli','oCli'],['sTel','oTel'],
+   ['sRoom','oRoom'],['sDue','oDue'],['sUnit','oUnit']].forEach(x=>{
+    const a=$(x[0]), b=$(x[1]); if(a&&b) b.value=a.value||''; });
+  $('oW').value=o.W?o.W.toFixed(2)+' م':'—';
+  $('oH').value=o.H?o.H.toFixed(2)+' م':'—';
+  $('oTr').value=o.net?o.net.toFixed(2)+' م':'—';
   $('curW').value=o.W?o.W.toFixed(2)+' م':''; $('curH').value=o.H?o.H.toFixed(2)+' م':'';
-  $('boxWrap').style.display=o.hasBox?'':'none';
   $('gRs').textContent=o.gR?_r2(o.gR*100)+' سم':'—'; $('gLs').textContent=o.gL?_r2(o.gL*100)+' سم':'—';
   $('extR').classList.toggle('bad',!!(o.gR&&o.eR>o.gR));
   $('extL').classList.toggle('bad',!!(o.gL&&o.eL>o.gL));
@@ -1506,20 +1621,14 @@ function sync(){
    +'<div class="stat"><div class="k">الشريط</div><div class="v" style="font-size:14px">'+o.bar+'</div></div>' : '';
 
   o.layers.forEach(r=>{
-    const tr=$('ftb').querySelector('tr[data-id="'+r._id+'"]');
-    const cd=$('fcards').querySelector('.fcard[data-id="'+r._id+'"]');
-    const put=(el,m,p,cls,tip)=>{ if(!el)return;
-      const a=el.querySelector('[data-c="m"]'), b=el.querySelector('[data-c="p"]');
-      if(!a||!b)return;
-      if(a.classList.contains('ob')){
-        a.className='ob '+cls; b.className='ob '+cls;
-        a.querySelector('.v').textContent=m; b.querySelector('.v').textContent=p;
-      } else { a.className='calc '+cls; b.className='calc '+cls; a.textContent=m; b.textContent=p; }
-      if(tip){a.title=tip;b.title=tip;}
-    };
-    if(r.ok) put(tr,r.mR.toFixed(2),String(r.panels),'ok',r.note),
-             put(cd,r.mR.toFixed(2),String(r.panels),'ok',r.note);
-    else put(tr,r.err[0],'—','pend'), put(cd,r.err[0],'—','pend');
+    const tr=$('ftb').querySelector('tr[data-id="'+r._id+'"]'); if(!tr)return;
+    const a=tr.querySelector('[data-c="m"]'), b=tr.querySelector('[data-c="p"]');
+    if(!a||!b)return;
+    if(r.ok){ a.className='calc'; b.className='calc';
+      a.textContent=r.mR.toFixed(2); b.textContent=String(r.panels);
+      a.title=r.note; b.title=r.note; }
+    else { a.className='calc pend'; b.className='calc pend';
+      a.textContent=r.err[0]; b.textContent='—'; a.title=''; b.title=''; }
   });
   const rd=o.layers.filter(l=>l.ok);
   $('fsum').textContent=rd.length?('الإجمالي '+o.tot.toFixed(2)+' متر · '+rd.reduce((s,l)=>s+l.panels,0)+' عرض · '+o.nW+' ويفي + '+o.nK+' KS'):'';
@@ -1551,7 +1660,8 @@ function scan(root){
   let need=0,done=0;
   root.querySelectorAll('[data-req]').forEach(el=>{
     need++;
-    if(el.classList.contains('seg')){ const v=rad(el.dataset.req);
+    if(el.classList.contains('seg')||el.classList.contains('cks')||el.classList.contains('ckbox')){
+      const v=rad(el.dataset.req);
       el.classList.toggle('need',!v); if(v)done++; }
     else{ const ok=!!String(el.value||'').trim();
       el.classList.toggle('filled',ok); el.classList.toggle('need',!ok); if(ok)done++; }
