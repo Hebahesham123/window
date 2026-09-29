@@ -363,6 +363,47 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 .pf table.wide td.calc.pend{color:var(--need);background:var(--needBg);font-size:10.5px;
   font-weight:700;line-height:1.35;padding:6px 3px}
 
+/* ===== تنبيهات الكاميرا ===== */
+.ctips{position:absolute;inset:0;z-index:4;background:rgba(11,20,32,.9);
+  backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;
+  padding:26px 22px calc(26px + var(--safeB));color:#fff;text-align:right}
+.ctips.off{display:none}
+.ctips .ct1{font-size:19px;font-weight:900;margin-bottom:14px}
+.ctips ol{margin:0 0 20px;padding-inline-start:20px;font-size:14.5px;line-height:2}
+.ctips li{margin-bottom:6px} .ctips b{color:var(--gold2)}
+/* ===== بوابة الدقة ===== */
+.retake{margin-top:12px;border:1.5px solid var(--err);background:var(--errBg);
+  border-radius:14px;padding:13px 14px}
+.retake .rt1{font-size:14.5px;font-weight:900;color:#8E1F1F;margin-bottom:7px}
+.retake ul{margin:0 0 12px;padding-inline-start:19px;font-size:12.5px;
+  line-height:1.85;color:#7C2318;font-weight:600}
+.retake .rtb{display:flex;gap:8px;flex-wrap:wrap}
+/* ===== محرّر الخانة على الموبايل ===== */
+.fbar{position:fixed;inset-inline:0;bottom:0;z-index:70;background:var(--card);
+  border-radius:20px 20px 0 0;box-shadow:0 -12px 40px rgba(11,20,32,.3);
+  padding:12px 14px calc(12px + var(--safeB));transform:translateY(105%);
+  transition:transform .26s cubic-bezier(.32,.72,0,1);display:none}
+.fbar.on{display:block;transform:translateY(0)}
+.fbar .grab{width:38px;height:4px;border-radius:99px;background:var(--line2);margin:0 auto 10px}
+.fbar .fbh{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.fbar .fbh b{font-size:15.5px;font-weight:800;line-height:1.3;flex:1;min-width:0}
+.fbar .fbh .no{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:7px;
+  background:var(--gold);color:#fff;font-size:11.5px;font-weight:800;flex:none}
+.fbar .fbh .pos{font-size:11.5px;font-weight:800;color:var(--mut);white-space:nowrap}
+.fbar .fbi input,.fbar .fbi textarea{font-size:19px;font-weight:700;min-height:56px;
+  text-align:center;border-width:2px}
+.fbar .fbi textarea{text-align:right;font-size:16px;font-weight:500}
+.fbar .opts{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
+.fbar .opts button{border:1.5px solid var(--line2);background:var(--card);border-radius:12px;
+  padding:14px 10px;font-size:14.5px;font-weight:700;cursor:pointer;min-height:52px}
+.fbar .opts button.sel{background:var(--deep);border-color:var(--deep);color:#fff}
+.fbar .hint2{font-size:11.5px;color:var(--mut);margin-top:8px;line-height:1.6;text-align:center}
+.fbar .fbn{display:flex;gap:8px;margin-top:12px}
+.fbar .fbn .btn{flex:1;min-height:48px;font-size:14px}
+.fbar .fbn .btn.mid{flex:1.3}
+.fbmask{position:fixed;inset:0;z-index:69;background:rgba(11,20,32,.28);display:none}
+.fbmask.on{display:block}
+
 /* ============ موبايل ============ */
 @media(max-width:700px){
   .wrap{padding:0 9px}
@@ -474,9 +515,9 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
         <div style="margin-top:12px;padding:12px;background:#F7F9FC;border:1px solid var(--line);border-radius:12px">
           <div style="font-size:13px;font-weight:800;margin-bottom:8px">مصدر المقياس</div>
           <div class="seg sm" style="margin-bottom:9px">
-            <label><input type="radio" name="sm2" value="known" checked>مقاس عندك بالمتر</label>
-            <label><input type="radio" name="sm2" value="a4">ورقة A4</label></div>
-          <div id="kKnown" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <label><input type="radio" name="sm2" value="a4" checked>ورقة A4 في الصورة</label>
+            <label><input type="radio" name="sm2" value="known">مقاس عندك بالمتر</label></div>
+          <div id="kKnown" style="display:none;gap:8px;align-items:center;flex-wrap:wrap">
             <select id="kSide" style="width:auto;min-width:130px">
               <option value="w">عرض الشباك</option><option value="h">ارتفاع الشباك</option></select>
             <span style="font-weight:800">=</span>
@@ -726,8 +767,18 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 <div class="cam" id="cam">
   <video id="vid" playsinline muted></video><canvas id="ov"></canvas>
   <div class="ct"><button class="btn s" id="cX" type="button">✕</button><div class="g"></div></div>
-  <div class="cb"><b>صوّر الشباك كامل</b>
-    <span>قف مواجه الشباك قدر الإمكان · النقط هتحطها بنفسك بعد التصوير</span>
+  <div class="ctips" id="ctips">
+    <div class="ct1">قبل ما تصوّر</div>
+    <ol>
+      <li><b>الصق ورقة A4</b> على ضلفة الشباك نفسها — مش على الحيطة جنبه</li>
+      <li><b>الشباك كله</b> لازم يبان في الصورة، ومعاه الأرض والسقف لو تقدر</li>
+      <li><b>قف مواجه الشباك</b> قدر الإمكان، وثبّت إيدك</li>
+      <li>نور كويس من غير وهج على الورقة</li>
+    </ol>
+    <button class="btn p" id="ctipsOk" type="button">فهمت — يلا نصوّر</button>
+  </div>
+  <div class="cb" id="cbar"><b>صوّر الشباك كامل</b>
+    <span>قف مواجه الشباك · النقط هتحطها بنفسك بعد التصوير</span>
     <button class="shutter" id="cShot" type="button"></button></div>
 </div>
 
@@ -741,6 +792,18 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
     <div id="aV" style="margin-top:7px;font-size:13.5px;font-weight:800"></div></div>
 </div>
 
+<div class="fbmask" id="fbmask"></div>
+<div class="fbar" id="fbar">
+  <div class="grab"></div>
+  <div class="fbh"><b id="fbLab">—</b><span class="pos" id="fbPos"></span>
+    <button class="btn xs" id="fbX" type="button">✕</button></div>
+  <div class="fbi" id="fbHost"></div>
+  <div class="hint2" id="fbHint"></div>
+  <div class="fbn">
+    <button class="btn" id="fbPrev" type="button">‹ السابق</button>
+    <button class="btn mid p" id="fbNext" type="button">التالي ›</button>
+  </div>
+</div>
 <div id="psheet"></div>
 
 <script>
@@ -1030,7 +1093,7 @@ let im=null, P=[], skip={}, SRC=null, MEAS=null, KIND=null, KIND_OK=false;
 const D=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const area=q=>q.reduce((s,p,i)=>{const n=q[(i+1)%q.length];return s+p[0]*n[1]-n[0]*p[1];},0)/2;
 const I_FLOOR=4,I_CEIL=5,I_WALLR=6,I_WALLL=7,I_PAPER=8;
-let SMODE='known', KNOWN={side:'w',cm:0};
+let SMODE='a4', KNOWN={side:'w',cm:0};
 const cv={width:0,height:0};
 function srcPixels(){
   if(SRC!==null) return SRC;
@@ -1496,6 +1559,17 @@ function paintResult(){
       if(m.skew>.06) w+='<div class="msg w"><span class="i">⚠️</span><span>نسبة الورقة مش مظبوطة — يا ركن غلط يا الورقة مش في مستوى الشباك.</span></div>';
     }
     if(!sane) w+='<div class="msg e"><span class="i">✕</span><span>المقاس ده مش منطقي ('+(m.W/100).toFixed(2)+' × '+(m.H/100).toFixed(2)+' م) — راجع الأركان.</span></div>';
+    /* بوابة الدقة: لو الصورة مش كويسة نطلب صورة تانية بدل ما نمرّر مقاس غلط */
+    const badAcc = m.srcT!=='مقاس معروف' && m.acc>0.06;
+    const badSkew= m.skew>0.10;
+    if(!sane||badAcc||badSkew){
+      w+='<div class="retake"><div class="rt1">⚠️ الصورة دي مش كفاية للقياس</div><ul>'
+        +(badAcc?'<li>ورقة الـ A4 صغيرة أوي في الصورة (±'+(m.acc*100).toFixed(0)+'٪ على المقاس) — اقرب منها.</li>':'')
+        +(badSkew?'<li>شكل الورقة في الصورة مش مظبوط — يا ركن غلط يا الورقة مايلة أو مش في مستوى الشباك.</li>':'')
+        +(!sane?'<li>المقاس الطالع مش منطقي — غالبًا الأركان مش مظبوطة.</li>':'')
+        +'</ul><div class="rtb"><button class="btn p" id="bRetake2" type="button">📷 صوّر تاني</button>'
+        +'<button class="btn" id="bFix" type="button">ظبّط النقط</button></div></div>';
+    }
     $('bUse').disabled=!sane;
   }
   if(!m) $('bUse').disabled=true;
@@ -1524,6 +1598,10 @@ $('bFind').addEventListener('click',()=>{
   if(!r){ alert('مالقيناش ورقة A4 — حط أركانها بإيدك من شاشة القياس.'); return; }
   while(P.length<I_PAPER){ skip[P.length]=true; P.push([0,0]); }
   P.length=I_PAPER; r.quad.forEach(q=>P.push([q[0],q[1]])); recalc(); });
+document.addEventListener('click',e=>{
+  if(e.target.id==='bRetake2') openCam();
+  if(e.target.id==='bFix'){ $('meas').classList.add('on'); fitStage(); mUI(); }
+});
 $('bKind').addEventListener('click',()=>{ if(!KIND)return; KIND_OK=true;
   $('kindOk').textContent='✓ هيتحط «'+KIND.kind+'» في المعاينة'; });
 $('bUse').addEventListener('click',()=>{
@@ -1560,6 +1638,7 @@ async function openCam(){
     video:{facingMode:{ideal:'environment'},width:{ideal:3840},height:{ideal:2160}},audio:false}); }
   catch(e){ $('fileIn').click(); return; }
   $('cam').classList.add('on');
+  $('ctips').classList.remove('off');      /* التنبيهات بتظهر كل مرة */
   const v=$('vid'); v.srcObject=str; await v.play(); camOvl();
 }
 function shutCam(){ cancelAnimationFrame(raf);
@@ -1573,6 +1652,7 @@ function camOvl(){
     x.beginPath(); x.moveTo(0,c.height*i/3); x.lineTo(c.width,c.height*i/3); x.stroke(); }
   if(str) raf=requestAnimationFrame(camOvl);
 }
+$('ctipsOk').addEventListener('click',()=>$('ctips').classList.add('off'));
 $('cX').addEventListener('click',shutCam);
 $('cShot').addEventListener('click',()=>{
   const v=$('vid'), c=document.createElement('canvas');
@@ -1982,6 +2062,140 @@ $('wDemo').addEventListener('click',()=>{
   i.src=DEMO.img;
 });
 
+
+
+/* ════════ محرّر الخانة على الموبايل ════════
+   على الموبايل الخانة في الورقة صغيرة — فلما تدوس عليها بيفتح
+   محرّر تحت بخانة كبيرة وأزرار «السابق / التالي» بين الخانات. */
+const isMob=()=>matchMedia('(max-width:700px)').matches;
+let FL=[], FI=-1;
+function labelOf(el){
+  const td=el.closest('td');
+  if(td){
+    let prev=td.previousElementSibling;
+    while(prev && !prev.classList.contains('l')) prev=prev.previousElementSibling;
+    if(prev){
+      const c=prev.cloneNode(true);
+      c.querySelectorAll('.hintx').forEach(x=>x.remove());
+      const b=c.querySelector('b'); const no=b?b.textContent.trim():'';
+      if(b)b.remove();
+      return {no:no, tx:c.textContent.trim().replace(/\s+/g,' ')};
+    }
+  }
+  const th=el.closest('table')&&el.closest('td')
+    ? (function(){const tr=el.closest('tr'), tb=el.closest('table');
+        if(!tb||!tb.tHead)return null;
+        const i=Array.prototype.indexOf.call(tr.children, el.closest('td'));
+        const h=tb.tHead.rows[0]; return h&&h.cells[i]?h.cells[i].textContent.trim():null;})()
+    : null;
+  return {no:'', tx: th || 'خانة'};
+}
+function hintOf(el){
+  const td=el.closest('td'); if(!td)return '';
+  let prev=td.previousElementSibling;
+  while(prev && !prev.classList.contains('l')) prev=prev.previousElementSibling;
+  const h=prev&&prev.querySelector('.hintx');
+  return h?h.textContent.trim():'';
+}
+function buildFields(){
+  const sec=$('s'+TAB); FL=[];
+  if(!sec) return;
+  const seen=new Set();
+  sec.querySelectorAll('.pf input, .pf select, .pf textarea').forEach(el=>{
+    if(el.type==='file'||el.readOnly||el.disabled) return;
+    if(el.type==='radio'||el.type==='checkbox'){
+      const box=el.closest('.cks,.ckbox'); if(!box) return;
+      const nm=el.name; if(seen.has(nm)) return; seen.add(nm);
+      FL.push({kind:el.type,name:nm,box:box,el:el});
+    } else FL.push({kind:'val',el:el});
+  });
+}
+function openField(target){
+  buildFields();
+  let i=FL.findIndex(f=> f.kind==='val' ? f.el===target
+        : (target.name? f.name===target.name : f.box.contains(target)));
+  if(i<0) i=0;
+  showField(i);
+}
+function showField(i){
+  if(i<0||i>=FL.length) return;
+  FI=i; const f=FL[i], host=$('fbHost');
+  host.innerHTML='';
+  let lab, hint='';
+  if(f.kind==='val'){
+    const L=labelOf(f.el); lab=L; hint=hintOf(f.el);
+    const t=f.el.tagName.toLowerCase();
+    let big;
+    if(t==='textarea'){ big=document.createElement('textarea'); big.rows=3; }
+    else if(t==='select'){
+      const wrap=document.createElement('div'); wrap.className='opts';
+      Array.from(f.el.options).forEach(o=>{
+        if(o.value==='')return;
+        const b=document.createElement('button'); b.type='button'; b.textContent=o.textContent;
+        if(f.el.value===o.value) b.classList.add('sel');
+        b.addEventListener('click',()=>{ f.el.value=o.value;
+          f.el.dispatchEvent(new Event('change',{bubbles:true}));
+          wrap.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+          b.classList.add('sel'); setTimeout(()=>showField(FI),120); });
+        wrap.appendChild(b);
+      });
+      host.appendChild(wrap); big=null;
+    }
+    else { big=document.createElement('input');
+      big.type=f.el.type==='date'?'date':(f.el.type==='tel'?'tel':f.el.type);
+      if(f.el.inputMode) big.inputMode=f.el.inputMode;
+      if(f.el.step) big.step=f.el.step; if(f.el.min) big.min=f.el.min;
+      big.placeholder=f.el.placeholder||''; }
+    if(big){
+      big.value=f.el.value;
+      big.addEventListener('input',()=>{ f.el.value=big.value;
+        f.el.dispatchEvent(new Event('input',{bubbles:true})); });
+      host.appendChild(big);
+      setTimeout(()=>{ big.focus(); if(big.select&&big.type!=='date') try{big.select();}catch(e){} },60);
+    }
+  } else {
+    const first=f.box.querySelector('input');
+    lab=labelOf(first)||{no:'',tx:''};
+    const wrap=document.createElement('div'); wrap.className='opts';
+    f.box.querySelectorAll('input').forEach(r=>{
+      const b=document.createElement('button'); b.type='button';
+      b.textContent=r.parentElement.textContent.trim();
+      if(r.checked) b.classList.add('sel');
+      b.addEventListener('click',()=>{
+        if(f.kind==='checkbox') r.checked=!r.checked;
+        else { f.box.querySelectorAll('input').forEach(x=>x.checked=false); r.checked=true; }
+        r.dispatchEvent(new Event('change',{bubbles:true}));
+        setTimeout(()=>showField(FI),120);
+      });
+      wrap.appendChild(b);
+    });
+    host.appendChild(wrap);
+  }
+  $('fbLab').innerHTML=(lab.no?'<span class="no">'+lab.no+'</span> ':'')+esc(lab.tx||'');
+  $('fbHint').textContent=hint;
+  $('fbPos').textContent=(i+1)+' / '+FL.length;
+  $('fbPrev').disabled=i===0;
+  $('fbNext').textContent = i===FL.length-1 ? 'تم ✓' : 'التالي ›';
+  $('fbar').classList.add('on'); $('fbmask').classList.add('on');
+}
+function closeField(){ $('fbar').classList.remove('on'); $('fbmask').classList.remove('on'); FI=-1; }
+$('fbX').addEventListener('click',closeField);
+$('fbmask').addEventListener('click',closeField);
+$('fbPrev').addEventListener('click',()=>showField(FI-1));
+$('fbNext').addEventListener('click',()=>{ if(FI>=FL.length-1) closeField(); else showField(FI+1); });
+document.addEventListener('focusin',e=>{
+  if(!isMob()) return;
+  const el=e.target;
+  if(!el.closest||!el.closest('.pf')) return;
+  if(el.type==='file'||el.readOnly) return;
+  if($('fbar').contains(el)) return;
+  el.blur(); openField(el);
+},true);
+document.addEventListener('click',e=>{
+  if(!isMob()) return;
+  const lbl=e.target.closest&&e.target.closest('.pf .ck');
+  if(lbl && !$('fbar').contains(lbl)){ e.preventDefault(); openField(lbl.querySelector('input')); }
+},true);
 
 LAY=[nl()]; drawRows(); go(0);
 </script>
