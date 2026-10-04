@@ -816,7 +816,7 @@ const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 
 const S={belowDefault:.15, ddKS:5, ddWave:6, ddRings:5, ddEye:5,
   fWave:3, fRings:3, fEye:3, fHeavy:2, fBlack:1, fBlackG:2,
-  eyeS:.40, eyeD:.80, decorFrac:2/3, blackExtra:.75, blackHem:.05,
+  eyeS:.40, eyeD:.80, decorFrac:2/3, blackExtra:1.00, blackHem:.05,
   tuck:.25, coverStep:.05, round:.25, trackDeduct:2,
   wTrack:10, ksTrack:5, barMin:10, nail:.50, kaboly:.50, kana:.70};
 const T_L={light:'خفيف',heavy:'تقيل',blackout:'بلاك اوت'};
@@ -891,7 +891,7 @@ function layer(L,W,H,c){
   else if(st==='rings'){r.f=S.fRings;r.fL='حلقات ×3';}
   else if(st==='eyelets'){r.f=S.fEye;r.fL='كالونات ×3';}
   else if(L.type==='blackout'){
-    if(L.finish==='flat'){r.f=S.fBlack;r.fL='بلاك اوت مفرود (+75 سم)';}
+    if(L.finish==='flat'){r.f=S.fBlack;r.fL='بلاك اوت مفرود (+100 سم)';}
     else{r.f=S.fBlackG;r.fL='بلاك اوت مكشكش ×2';}}
   else if(L.type==='heavy'){r.f=S.fHeavy;r.fL='شريط عادي ×2';}
   else{r.f=num(L.gather)||2;r.fL='شريط عادي ×'+r.f;}
@@ -907,11 +907,15 @@ function layer(L,W,H,c){
   r.fh=_r2(fh); r.wcT=L.wClass?(single?'عرض واحد':'عرضين'):'—';
   if(r.err.length) return r;
 
-  const across = !single && (L.type==='blackout' ? (fh-H)>S.blackHem : fh>=H);
+  /* هامش الفاضل بتاع البلاك اوت بيتطبّق على الشريط العادي بس.
+     مع الويفي بتسري قاعدة الويفي العادية: الخامة بتغطي لو ارتفاعها ≥ الارتفاع.
+     (من أمر التشغيل الحقيقي NS-CUR-20260922-2216: بلاك اوت ويفي، خامة 2.80
+      وارتفاع 2.78 — الفاضل 2 سم بس والمصنع فصّلها عرضين مش قلب.) */
+  const across = !single && ((L.type==='blackout'&&st==='normal') ? (fh-H)>S.blackHem : fh>=H);
   if(across){
     r.mode='الخامة بعرضها بتغطي الارتفاع';
     if(L.type==='blackout'&&st==='normal'&&L.finish==='flat'){
-      r.wU=_r2(base+S.blackExtra); r.wN='بلاك اوت مفرود: '+_r2(base)+' + 0.75 = '+r.wU+' م';}
+      r.wU=_r2(base+S.blackExtra); r.wN='بلاك اوت مفرود: '+_r2(base)+' + 1.00 = '+r.wU+' م';}
     r.panels=1; r.cut=_r2(H); r.raw=r.wU*r.f;
     r.note='الارتفاع '+_r2(H)+' ≤ عرض الخامة '+fh.toFixed(2)+' → '+_r2(r.wU)+(r.f!==1?' × '+r.f:'')+' = '+_r2(r.raw)+' م · فاضل '+_r2((fh-H)*100)+' سم';
   } else {
