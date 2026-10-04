@@ -655,6 +655,16 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
           <img id="picImg" style="display:none">
           <input id="sPic" type="file" accept="image/*" capture="environment" hidden>
           <button class="btn s noP" type="button" id="bPic" style="margin-top:8px">اختر صورة</button></div></td>
+    </tr><tr>
+      <td class="pbox" colspan="2"><b>صورة بيت الستارة — لقياس العمق (١٢)</b>
+        <div class="in2"><div class="phld" id="boxPh">صوّر فتحة بيت الستارة من تحت وحدّد أركانها الأربعة،
+          والبرنامج هيقدّر العمق — بس <b>التقدير ده مش بديل الشريط</b>.</div>
+          <img id="boxImg" style="display:none">
+          <input id="boxIn" type="file" accept="image/*" capture="environment" hidden>
+          <div class="noP" style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;justify-content:center">
+            <button class="btn s" type="button" id="bBoxPic">📷 صوّر بيت الستارة</button>
+            <button class="btn s" type="button" id="bBoxEdit" style="display:none">↩ ظبّط الأركان</button></div>
+          <div id="boxEst"></div></div></td>
     </tr></table>
 
     <table style="margin-top:5px"><tr><td class="pnote">المقاسات تم رفعها بمعرفة العميل وهو مسئول عنها وأي خطأ بها هي مسئولية العميل</td></tr></table>
@@ -1137,6 +1147,21 @@ const TOKR=['فرانشة','شرابة لم جنب','شرابة ديكور','ح�
     setTimeout(()=>el.classList.remove('flash'),1000);}));
 })();
 $('bPic').addEventListener('click',()=>$('sPic').click());
+$('bBoxPic').addEventListener('click',()=>{
+  if(!(num($('boxW').value)>0)){
+    alert('اكتب عرض بيت الستارة (خانة ١٠) الأول — هو اللي بيدّي المقياس للصورة.'); 
+    $('boxW').focus(); return; }
+  $('boxIn').click();
+});
+$('bBoxEdit').addEventListener('click',()=>{ if(im&&MM==='box'){ $('meas').classList.add('on'); fitStage(); mUI(); }});
+$('boxIn').addEventListener('change',e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f)return;
+  const i=new Image();
+  i.onload=()=>{ const sc=Math.min(1,3200/Math.max(i.naturalWidth,i.naturalHeight));
+    openMeas(i,Math.round(i.naturalWidth*sc),Math.round(i.naturalHeight*sc),'box'); };
+  i.onerror=()=>alert('الصورة مش راضية تتفتح.');
+  i.src=URL.createObjectURL(f);
+});
 $('bDraw').addEventListener('click',()=>$('drawIn').click());
 $('drawIn').addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return;
   $('drawImg').src=URL.createObjectURL(f); $('drawImg').style.display=''; $('drawPh').style.display='none';});
@@ -1149,6 +1174,7 @@ $('sPic').addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return;
 /* ════════ الهندسة والقياس (المحرك) ════════ */
 const A4L=29.7, A4S=21;
 let im=null, P=[], skip={}, SRC=null, MEAS=null, KIND=null, KIND_OK=false, PICSHOT=null;
+let MM='win', BOXPIC=null, BOXDEPTH=null;   /* وضع القياس · صورة بيت الستارة · تقدير العمق */
 const D=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const area=q=>q.reduce((s,p,i)=>{const n=q[(i+1)%q.length];return s+p[0]*n[1]-n[0]*p[1];},0)/2;
 const I_FLOOR=4,I_CEIL=5,I_WALLR=6,I_WALLL=7,I_BOX=8;
@@ -1395,9 +1421,15 @@ const STEPS=[
   {n:'الحافة السفلية لبيت الستارة',h:'أوطى حافة من جوه · خانات ١١ و١٣',d:'bb',opt:1,box:1},
   {n:'ركن ورقة A4 — ١',h:'الورقة لازم تكون في نفس مستوى الشباك',d:'p'},
   {n:'ركن الورقة — ٢',h:'',d:'p'},{n:'ركن الورقة — ٣',h:'',d:'p'},{n:'ركن الورقة — ٤',h:'',d:'p'}];
-const nPts=()=>IP()+(SMODE==='a4'?4:0);
+const nPts=()=>MM==='box'?4:IP()+(SMODE==='a4'?4:0);
 /* الخطوات اللي هتظهر فعلًا: الأساسية + بيت الستارة لو مفعّل + الورقة لو المقياس بالورقة */
+const BSTEPS=[
+  {n:'ركن الفتحة — قدام يمين',h:'الحرف القريب منك، ناحية اليمين',d:'o1'},
+  {n:'ركن الفتحة — قدام شمال',h:'نفس الحرف القريب، ناحية الشمال',d:'o2'},
+  {n:'ركن الفتحة — ورا شمال',h:'الحرف الملاصق للحيطة، ناحية الشمال',d:'o3'},
+  {n:'ركن الفتحة — ورا يمين',h:'الحرف الملاصق للحيطة، ناحية اليمين',d:'o4'}];
 function stepList(){
+  if(MM==='box') return BSTEPS;
   const base=STEPS.filter(x=>!x.box&&x.d!=='p');
   const box =STEPS.filter(x=>x.box);
   const pap =STEPS.filter(x=>x.d==='p');
@@ -1406,6 +1438,8 @@ function stepList(){
 function miniDia(kind){
   const b='<rect x="14" y="10" width="72" height="50" rx="2" fill="none" stroke="#7C8CA0" stroke-width="2"/>';
   const dot=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="7" fill="#A87C2A"/>';
+  const OPEN='<rect x="20" y="18" width="60" height="34" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'
+    +'<text x="50" y="12" text-anchor="middle" font-size="9" fill="#7C8CA0">الحيطة</text>';
   const m={c0:dot(86,10),c1:dot(14,10),c2:dot(14,60),c3:dot(86,60),
     fl:'<line x1="6" y1="66" x2="94" y2="66" stroke="#0B8A5C" stroke-width="3"/>'+dot(50,66),
     ce:'<line x1="6" y1="5" x2="94" y2="5" stroke="#0B8A5C" stroke-width="3"/>'+dot(50,5),
@@ -1414,7 +1448,8 @@ function miniDia(kind){
     p:'<rect x="60" y="22" width="22" height="30" fill="#E9F0FD" stroke="#2158C9" stroke-width="2"/>',
     br:'<rect x="10" y="4" width="80" height="13" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'+dot(90,10),
     bl:'<rect x="10" y="4" width="80" height="13" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'+dot(10,10),
-    bb:'<rect x="10" y="4" width="80" height="13" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'+dot(50,17)};
+    bb:'<rect x="10" y="4" width="80" height="13" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'+dot(50,17),
+    o1:OPEN+dot(80,52), o2:OPEN+dot(20,52), o3:OPEN+dot(20,18), o4:OPEN+dot(80,18)};
   return '<svg viewBox="0 0 100 70">'+b+(m[kind]||'')+'</svg>';
 }
 
@@ -1592,16 +1627,66 @@ $('mUndo').addEventListener('click',()=>{
   if(mSel>=0){mSel=-1;} else { const i=P.length-1; delete skip[i]; P.pop(); }
   mUI(); recalc(); });
 $('mX').addEventListener('click',()=>{ $('meas').classList.remove('on'); });
-$('mDone').addEventListener('click',()=>{ $('meas').classList.remove('on'); recalc();
+$('mDone').addEventListener('click',()=>{
+  $('meas').classList.remove('on'); recalc();
+  if(MM==='box'){
+    const shot=snapshotMeasured();
+    if(shot){ BOXPIC=shot; $('boxImg').src=shot; $('boxImg').style.display='';
+      $('boxPh').style.display='none'; $('bBoxEdit').style.display=''; }
+    showBoxEst();
+    go(1); $('boxEst').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   $('rbox').style.display=''; $('rbox').scrollIntoView({behavior:'smooth',block:'center'}); });
 $('bEdit').addEventListener('click',()=>{ $('meas').classList.add('on'); fitStage(); mUI(); });
 addEventListener('resize',()=>{ if($('meas').classList.contains('on')){fitStage(); clampPan(); mDraw();} });
 
-function openMeas(img,w,h){
+function openMeas(img,w,h,mode){
+  MM=mode||'win';
   im=img; cv.width=w; cv.height=h; SRC=null;
   P=[]; skip={}; mSel=-1; MEAS=null; KIND=null; KIND_OK=false;
   $('meas').classList.add('on');
   requestAnimationFrame(()=>{ fitStage(); fitImage(); $('mZl').textContent='١×'; mUI(); });
+}
+
+/* بنعيد الحساب بتشويش ±٢ بكسل على الأركان عشان نقول للمستخدم
+   المدى المتوقع للعمق في الصورة دي بالذات — مش رقم عام */
+function depthRange(){
+  if(!im||P.length<4) return null;
+  const bw=num($('boxW').value)*100; if(!(bw>0)) return null;
+  const out=[];
+  for(let k=0;k<80;k++){
+    const q=P.slice(0,4).map(a=>[a[0]+(Math.random()*2-1)*2.2, a[1]+(Math.random()*2-1)*2.2]);
+    const r=solve(q,{imgW:cv.width,imgH:cv.height,noOrder:true,known:{side:'w',cm:bw}});
+    if(r&&isFinite(r.H)) out.push(r.H);
+  }
+  if(out.length<20) return null;
+  out.sort((a,b)=>a-b);
+  return {lo:out[Math.floor(out.length*0.1)], hi:out[Math.floor(out.length*0.9)]};
+}
+function showBoxEst(){
+  const e=$('boxEst');
+  if(BOXDEPTH==null||!isFinite(BOXDEPTH)){ e.innerHTML=''; return; }
+  const r=depthRange();
+  const d=Math.round(BOXDEPTH);
+  const spread=r?Math.round((r.hi-r.lo)/2):null;
+  const shaky = !r || spread>3 || d<4 || d>70;
+  e.innerHTML='<div class="msg '+(shaky?'w':'o')+'" style="margin-top:10px;text-align:right">'
+    +'<span class="i">'+(shaky?'⚠️':'📐')+'</span><span>'
+    +'<b>تقدير العمق: '+d+' سم</b>'
+    +(r?(' · المدى المتوقع '+Math.round(r.lo)+'–'+Math.round(r.hi)+' سم'):'')
+    +'<br>'+(shaky
+      ? 'التقدير ده مش مستقر — قيسه بالشريط.'
+      : 'راجعه بالشريط قبل ما تعتمده — العمق هو اللي بيحدد التراك هيدخل ولا لأ.')
+    +'</span></div>'
+    +'<button class="btn s noP" type="button" id="bUseDepth" style="margin-top:8px">'
+    +'استخدم '+d+' سم في خانة ١٢</button>';
+  const b=$('bUseDepth');
+  if(b) b.addEventListener('click',()=>{
+    $('boxD').value=String(d);
+    $('boxD').dispatchEvent(new Event('input',{bubbles:true}));
+    $('boxD').classList.add('auto'); sync();
+  });
 }
 
 /* ════════ لقطة الصورة بعلاماتها — بتروح لخانة ١٤ صورة الشباك ════════ */
@@ -1654,6 +1739,15 @@ function snapshotMeasured(){
 /* ════════ حساب النتيجة ════════ */
 function recalc(){
   MEAS=null;
+  /* وضع بيت الستارة: أركان الفتحة الأربعة، والمقياس من عرض البيت (خانة ١٠) */
+  if(MM==='box'){
+    const bw=num($('boxW').value)*100;
+    if(im&&P.length>=4&&bw>0){
+      MEAS=solve(P.slice(0,4),{imgW:cv.width,imgH:cv.height,noOrder:true,known:{side:'w',cm:bw}});
+      if(MEAS){ MEAS.isBox=true; BOXDEPTH=MEAS.H; }
+    }
+    paintResult(); return;
+  }
   if(im&&P.length>=4){
     const o={imgW:cv.width,imgH:cv.height,
       floor:(P[I_FLOOR]&&!skip[I_FLOOR])?P[I_FLOOR]:null,
@@ -1673,6 +1767,7 @@ function recalc(){
   paintResult();
 }
 function paintResult(){
+  if(MM==='box'){ showBoxEst(); return; }
   const m=MEAS, box=$('rbox');
   if(!im){box.style.display='none';return;}
   box.style.display='';
@@ -2114,6 +2209,8 @@ function doPrint(){
       +BX(rad('winKind')==='مفصلي')+' مفصلي &nbsp; '+BX(rad('winKind')==='جرار')+' جرار &nbsp; '
       +BX(rad('winKind')==='خيس بودي')+' خيس بودي</td>'
       +'<td class="l">نزول تحت الحلق</td><td>'+V('below')+' سم</td></tr></table>'
+    +(BOXPIC?('<div class="sec">صورة بيت الستارة</div>'
+      +'<table><tr><td style="padding:4px"><img src="'+BOXPIC+'" style="max-width:100%;max-height:70mm;display:block;margin:0 auto"></td></tr></table>'):'')
     +(PICSHOT?('<div class="sec">١٤ — صورة الشباك</div>'
       +'<table><tr><td style="padding:4px"><img src="'+PICSHOT+'" style="max-width:100%;max-height:92mm;display:block;margin:0 auto"></td></tr></table>'):'')
     +'<table style="margin-top:5px"><tr><td style="padding:6px">المقاسات تم رفعها بمعرفة العميل وهو مسئول عنها وأي خطأ بها هي مسئولية العميل</td></tr></table>'
