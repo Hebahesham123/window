@@ -1129,11 +1129,14 @@ $('bDraw').addEventListener('click',()=>$('drawIn').click());
 $('drawIn').addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return;
   $('drawImg').src=URL.createObjectURL(f); $('drawImg').style.display=''; $('drawPh').style.display='none';});
 $('sPic').addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return;
-  $('picImg').src=URL.createObjectURL(f); $('picImg').style.display=''; $('picPh').style.display='none';});
+  const rd=new FileReader();
+  rd.onload=()=>{ PICSHOT=rd.result; $('picImg').src=rd.result;
+    $('picImg').style.display=''; $('picPh').style.display='none'; };
+  rd.readAsDataURL(f);});
 
 /* ════════ الهندسة والقياس (المحرك) ════════ */
 const A4L=29.7, A4S=21;
-let im=null, P=[], skip={}, SRC=null, MEAS=null, KIND=null, KIND_OK=false;
+let im=null, P=[], skip={}, SRC=null, MEAS=null, KIND=null, KIND_OK=false, PICSHOT=null;
 const D=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const area=q=>q.reduce((s,p,i)=>{const n=q[(i+1)%q.length];return s+p[0]*n[1]-n[0]*p[1];},0)/2;
 const I_FLOOR=4,I_CEIL=5,I_WALLR=6,I_WALLL=7,I_PAPER=8;
@@ -1553,6 +1556,53 @@ function openMeas(img,w,h){
   requestAnimationFrame(()=>{ fitStage(); fitImage(); $('mZl').textContent='١×'; mUI(); });
 }
 
+/* ════════ لقطة الصورة بعلاماتها — بتروح لخانة ١٤ صورة الشباك ════════ */
+function snapshotMeasured(){
+  if(!im||P.length<4) return null;
+  try{
+    const MAX=1500, k=Math.min(1,MAX/Math.max(cv.width,cv.height));
+    const c=document.createElement('canvas');
+    c.width=Math.round(cv.width*k); c.height=Math.round(cv.height*k);
+    const g=c.getContext('2d');
+    g.drawImage(im,0,0,c.width,c.height);
+    const S0=Math.max(c.width,c.height)/900;
+    const tp=q=>[q[0]*k,q[1]*k];
+    const quad=(pts,col,fill)=>{
+      if(pts.length<2)return;
+      const a=pts.map(tp);
+      g.beginPath(); a.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));
+      if(a.length===4)g.closePath();
+      g.lineWidth=3.2*S0; g.strokeStyle=col; g.stroke();
+      if(fill&&a.length===4){g.fillStyle=fill; g.fill();}
+    };
+    const wp=P.slice(0,4).filter((q,i)=>q&&!skip[i]);
+    quad(wp.length===4?oq(wp):wp,'#E8B730','rgba(232,183,48,.13)');
+    const pp=P.slice(I_PAPER,I_PAPER+4).filter(Boolean);
+    quad(pp.length===4?oq(pp):pp,'#2F86E8','rgba(47,134,232,.16)');
+    P.forEach((q,i)=>{
+      if(!q||skip[i])return;
+      const a=tp(q), col=i<4?'#E8B730':i<6?'#19A86B':i<8?'#8B5CD6':'#2F86E8';
+      g.beginPath(); g.arc(a[0],a[1],11*S0,0,7);
+      g.fillStyle='rgba(11,20,32,.45)'; g.fill();
+      g.lineWidth=3*S0; g.strokeStyle='#fff'; g.stroke();
+      g.beginPath(); g.arc(a[0],a[1],11*S0,0,7); g.lineWidth=2*S0; g.strokeStyle=col; g.stroke();
+      g.beginPath(); g.arc(a[0],a[1],3*S0,0,7); g.fillStyle=col; g.fill();
+    });
+    if(MEAS){
+      const txt='عرض '+(MEAS.W/100).toFixed(2)+' م  ×  ارتفاع '+(MEAS.H/100).toFixed(2)+' م'
+        +(MEAS.sill!=null?'   ·   من الأرض '+(MEAS.sill/100).toFixed(2):'')
+        +(MEAS.drop!=null?'   ·   السقوط '+(MEAS.drop/100).toFixed(2):'');
+      g.font='800 '+(20*S0)+'px Tajawal, sans-serif';
+      const w2=g.measureText(txt).width, pad=12*S0, h2=34*S0;
+      g.fillStyle='rgba(11,20,32,.82)';
+      g.fillRect(c.width-w2-pad*3, c.height-h2-pad, w2+pad*2, h2);
+      g.fillStyle='#fff'; g.textAlign='right'; g.textBaseline='middle';
+      g.fillText(txt, c.width-pad*2, c.height-h2/2-pad);
+    }
+    return c.toDataURL('image/jpeg',.88);
+  }catch(e){ return null; }
+}
+
 /* ════════ حساب النتيجة ════════ */
 function recalc(){
   MEAS=null;
@@ -1669,9 +1719,13 @@ $('bUse').addEventListener('click',()=>{
     if(el){el.checked=true; extra='<div class="msg w"><span class="i">🪟</span><span>نوع الشباك اتحط <b>'+KIND.kind
       +'</b> كاقتراح من الصورة — راجعه بعينك.</span></div>';}
   }
+  const shot=snapshotMeasured();
+  if(shot){ PICSHOT=shot; $('picImg').src=shot; $('picImg').style.display='';
+    $('picPh').style.display='none'; }
   go(1);
   $('note1').innerHTML='<div class="msg i2"><span class="i">📏</span><span>اتملى من <b>'+m.srcT+'</b>: '
-    +f.join(' · ')+' — راجعهم وكمّل الباقي.</span></div>'+extra;
+    +f.join(' · ')+' — راجعهم وكمّل الباقي.'
+    +(shot?' وصورة الشباك (١٤) اتحطت بعلاماتها.':'')+'</span></div>'+extra;
   sync();
 });
 
@@ -2003,6 +2057,8 @@ function doPrint(){
       +BX(rad('winKind')==='مفصلي')+' مفصلي &nbsp; '+BX(rad('winKind')==='جرار')+' جرار &nbsp; '
       +BX(rad('winKind')==='خيس بودي')+' خيس بودي</td>'
       +'<td class="l">نزول تحت الحلق</td><td>'+V('below')+' سم</td></tr></table>'
+    +(PICSHOT?('<div class="sec">١٤ — صورة الشباك</div>'
+      +'<table><tr><td style="padding:4px"><img src="'+PICSHOT+'" style="max-width:100%;max-height:92mm;display:block;margin:0 auto"></td></tr></table>'):'')
     +'<table style="margin-top:5px"><tr><td style="padding:6px">المقاسات تم رفعها بمعرفة العميل وهو مسئول عنها وأي خطأ بها هي مسئولية العميل</td></tr></table>'
     +'<div class="sg"><div>توقيع العميل</div><div>مهندس التشغيل</div><div>رئيس القسم</div><div>اعتماد مدير الفرع</div></div>'
     +'</div>';
