@@ -378,6 +378,31 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 .retake ul{margin:0 0 12px;padding-inline-start:19px;font-size:12.5px;
   line-height:1.85;color:#7C2318;font-weight:600}
 .retake .rtb{display:flex;gap:8px;flex-wrap:wrap}
+/* ===== منتقي الخامة ===== */
+.mpk{position:fixed;inset:0;z-index:80;display:none;flex-direction:column;
+  background:var(--card)}
+.mpk.on{display:flex}
+.mpk .mh{padding:calc(12px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;gap:10px;background:var(--card)}
+.mpk .mh .r1{display:flex;align-items:center;gap:10px}
+.mpk .mh b{font-size:16px;font-weight:800;flex:1}
+.mpk .mh input{min-height:48px;font-size:16px}
+.mpk .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.mpk .chips button{border:1.5px solid var(--line2);background:var(--card);border-radius:99px;
+  padding:7px 14px;font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer}
+.mpk .chips button.on{background:var(--deep);border-color:var(--deep);color:#fff}
+.mpk .ml{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 10px calc(12px + var(--safeB))}
+.mpk .it{display:flex;align-items:center;gap:11px;padding:12px 11px;border-radius:12px;
+  cursor:pointer;border:1px solid transparent}
+.mpk .it:hover,.mpk .it:active{background:#F4F7FB;border-color:var(--line)}
+.mpk .it .nm{flex:1;min-width:0}
+.mpk .it .nm b{display:block;font-size:15px;font-weight:800;line-height:1.3}
+.mpk .it .nm span{display:block;font-size:11.5px;color:var(--mut);margin-top:2px}
+.mpk .it .cl{flex:none;background:var(--autoBg);color:var(--auto);border-radius:9px;
+  padding:6px 10px;font-size:12.5px;font-weight:800;min-width:46px;text-align:center}
+.mpk .empty{text-align:center;color:var(--mut);font-size:13px;padding:34px 16px;line-height:1.8}
+.pickbtn{cursor:pointer}
+
 /* ===== محرّر الخانة على الموبايل ===== */
 .fbar{position:fixed;inset-inline:0;bottom:0;z-index:70;background:var(--card);
   border-radius:20px 20px 0 0;box-shadow:0 -12px 40px rgba(11,20,32,.3);
@@ -792,6 +817,15 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
     <div id="aV" style="margin-top:7px;font-size:13.5px;font-weight:800"></div></div>
 </div>
 
+<div class="mpk" id="mpk">
+  <div class="mh">
+    <div class="r1"><b id="mpkT">اختر الخامة</b>
+      <button class="btn xs" id="mpkX" type="button">✕</button></div>
+    <input id="mpkQ" type="search" placeholder="دوّر بالاسم أو كود اللون…" autocomplete="off">
+    <div class="chips" id="mpkC"></div>
+  </div>
+  <div class="ml" id="mpkL"></div>
+</div>
 <div class="fbmask" id="fbmask"></div>
 <div class="fbar" id="fbar">
   <div class="grab"></div>
@@ -983,12 +1017,16 @@ const selW=L=>'<select data-k="wClass" class="'+(L.wClass?'filled':'need')+'"><o
   +OPT('single',L.wClass,'عرض واحد')+OPT('double',L.wClass,'عرضين')+'</select>';
 const inp=(L,k,ph)=>'<input data-k="'+k+'" value="'+esc(L[k])+'" placeholder="'+(ph||'')+'" class="'
   +(RQ.indexOf(k)>-1?(L[k]?'filled':'need'):'')+'">';
+/* خانة الصنف: ممكن تكتبها بإيدك أو تختار من الفهرس */
+const inpName=L=>'<div style="display:flex;gap:3px;align-items:center">'
+  +'<input data-k="name" value="'+esc(L.name)+'" placeholder="Chianti" class="'+(L.name?'filled':'need')+'" style="flex:1">'
+  +'<button class="btn xs pickbtn noP" data-pick type="button" title="اختر من فهرس الخامات">⌕</button></div>';
 const inpN=(L,k,ph)=>'<input data-k="'+k+'" type="number" min="0" step="0.05" value="'+esc(L[k])
   +'" placeholder="'+(ph||'')+'" class="'+(L[k]?'filled':'need')+'">';
 
 function rowTab(L,i){
   return '<tr data-id="'+L.id+'"><td>'+selType(L)+'</td><td>'+inp(L,'code','18')+'</td>'
-    +'<td>'+inp(L,'name','Chianti')+'</td><td>'+selW(L)+'</td><td>'+inpN(L,'fH','2.80')+'</td>'
+    +'<td>'+inpName(L)+'</td><td>'+selW(L)+'</td><td>'+inpN(L,'fH','2.80')+'</td>'
     +'<td data-c="m" class="calc pend">—</td><td data-c="p" class="calc pend">—</td>'
     +'<td>'+selStyle(L)+subSel(L)+'</td><td>'+inp(L,'ex','—')+'</td>'
     +'<td><button class="btn xs" data-del type="button">حذف</button></td></tr>';
@@ -1003,6 +1041,8 @@ function drawRows(){
         if(['type','style','wClass'].indexOf(c.dataset.k)>-1) drawRows(); else sync();
       });
     });
+    const pk=el.querySelector('[data-pick]');
+    if(pk) pk.addEventListener('click',ev=>{ev.preventDefault(); ev.stopPropagation(); openPick(L);});
     const d=el.querySelector('[data-del]');
     if(d) d.addEventListener('click',()=>{LAY=LAY.length===1?[nl()]:LAY.filter(x=>x.id!==id); drawRows();});
   });
@@ -2067,6 +2107,70 @@ $('wDemo').addEventListener('click',()=>{
 });
 
 
+
+
+/* ════════ منتقي الخامة من فهرس أودو ════════
+   الفهرس (materials.json) متسحوب من API الفواتير ومشحون مع الصفحة،
+   فالبحث بيشتغل من غير نت ومن غير ما التوكن يبقى على الموبايل. */
+let MATS=null, MATQ='', MATF='', MATROW=null;
+const T_AR={light:'خفيف',heavy:'تقيل',blackout:'بلاك اوت',accessory:'إكسسوار'};
+async function loadMats(){
+  if(MATS) return MATS;
+  try{
+    const r=await fetch('materials.json',{cache:'force-cache'});
+    if(!r.ok) throw new Error(r.status);
+    const j=await r.json();
+    MATS=j.items||[]; MATS._built=j.built||''; 
+  }catch(e){ MATS=[]; MATS._err=e.message; }
+  return MATS;
+}
+function mpkRender(){
+  const L=$('mpkL');
+  if(!MATS||!MATS.length){
+    L.innerHTML='<div class="empty">مش لاقي فهرس الخامات.<br>'
+      +'اتأكد إن ملف <b>materials.json</b> موجود جنب الصفحة،<br>أو اكتب اسم الخامة بإيدك.</div>';
+    return;
+  }
+  const q=MATQ.trim().toLowerCase();
+  let list=MATS;
+  if(MATF) list=list.filter(x=>x.t===MATF);
+  if(q) list=list.filter(x=>(x.n||'').toLowerCase().includes(q)
+                          ||(x.c||'').toLowerCase().includes(q)
+                          ||(x.cat||'').toLowerCase().includes(q));
+  const total=list.length;
+  list=list.slice(0,80);
+  if(!list.length){
+    L.innerHTML='<div class="empty">مفيش نتيجة لـ «'+esc(MATQ)+'».<br>تقدر تكتب اسم الخامة بإيدك في الخانة.</div>';
+    return;
+  }
+  L.innerHTML=list.map((x,i)=>'<div class="it" data-i="'+MATS.indexOf(x)+'">'
+    +'<div class="nm"><b>'+esc(x.n)+'</b><span>'+esc(T_AR[x.t]||x.t)+(x.cat?' · '+esc(x.cat):'')+'</span></div>'
+    +(x.c?'<div class="cl">'+esc(x.c)+'</div>':'')+'</div>').join('')
+    +(total>80?'<div class="empty">فيه '+(total-80)+' نتيجة كمان — دوّر باسم أدق.</div>':'');
+  L.querySelectorAll('.it').forEach(el=>el.addEventListener('click',()=>{
+    const m=MATS[+el.dataset.i]; if(!m||!MATROW) return;
+    MATROW.name=m.n; if(m.c) MATROW.code=m.c;
+    if(!MATROW.type && m.t!=='accessory') MATROW.type=m.t;
+    closePick(); drawRows();
+  }));
+}
+function openPick(L){
+  MATROW=L; MATQ=''; MATF=L.type||'';
+  $('mpkQ').value=''; $('mpk').classList.add('on');
+  $('mpkC').innerHTML=[['','الكل'],['light','خفيف'],['heavy','تقيل'],['blackout','بلاك اوت']]
+    .map(c=>'<button type="button" data-f="'+c[0]+'"'+(MATF===c[0]?' class="on"':'')+'>'+c[1]+'</button>').join('');
+  $('mpkC').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    MATF=b.dataset.f;
+    $('mpkC').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    mpkRender();}));
+  $('mpkL').innerHTML='<div class="empty">بنحمّل فهرس الخامات…</div>';
+  loadMats().then(()=>{ 
+    $('mpkT').textContent='اختر الخامة'+(MATS._built?' · فهرس '+MATS._built:'');
+    mpkRender(); setTimeout(()=>$('mpkQ').focus(),80); });
+}
+function closePick(){ $('mpk').classList.remove('on'); MATROW=null; }
+$('mpkX').addEventListener('click',closePick);
+$('mpkQ').addEventListener('input',e=>{ MATQ=e.target.value; mpkRender(); });
 
 /* ════════ محرّر الخانة على الموبايل ════════
    على الموبايل الخانة في الورقة صغيرة — فلما تدوس عليها بيفتح
