@@ -196,6 +196,16 @@ input[readonly]{cursor:default}
 /* لوحة سفلية */
 .msheet{position:relative;z-index:3;background:var(--card);border-radius:22px 22px 0 0;
   padding:14px 14px calc(14px + var(--safeB));box-shadow:0 -10px 34px rgba(0,0,0,.34)}
+/* سويتش بيت الستارة */
+.boxsw{margin-bottom:11px}
+.sw{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;font-weight:700;
+  background:#F5F7FA;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sw input{display:none}
+.sw i{width:40px;height:23px;border-radius:99px;background:var(--line2);flex:none;position:relative;transition:.2s}
+.sw i::after{content:'';position:absolute;top:2.5px;inset-inline-start:2.5px;width:18px;height:18px;
+  border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.sw input:checked + i{background:var(--gold)}
+.sw input:checked + i::after{transform:translateX(-17px)}
 .msheet .prog{display:flex;gap:4px;margin-bottom:11px}
 .msheet .prog i{flex:1;height:4px;border-radius:99px;background:var(--line);transition:.25s}
 .msheet .prog i.on{background:var(--gold)}
@@ -777,6 +787,8 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
     <div class="prog" id="mProg"></div>
     <div class="mhint"><div class="dia" id="mDia"></div>
       <div class="tx"><b id="mName">—</b><span id="mHint"></span></div></div>
+    <div class="boxsw"><label class="sw"><input type="checkbox" id="mBox">
+      <i></i><span>فيه بيت ستارة — زوّد ٣ نقط لقياسه</span></label></div>
     <div class="zrow"><span class="zl">🔍</span>
       <input type="range" id="mZoom" min="100" max="900" value="100">
       <span class="zl" id="mZl">١×</span></div>
@@ -1139,7 +1151,10 @@ const A4L=29.7, A4S=21;
 let im=null, P=[], skip={}, SRC=null, MEAS=null, KIND=null, KIND_OK=false, PICSHOT=null;
 const D=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const area=q=>q.reduce((s,p,i)=>{const n=q[(i+1)%q.length];return s+p[0]*n[1]-n[0]*p[1];},0)/2;
-const I_FLOOR=4,I_CEIL=5,I_WALLR=6,I_WALLL=7,I_PAPER=8;
+const I_FLOOR=4,I_CEIL=5,I_WALLR=6,I_WALLL=7,I_BOX=8;
+let BOXON=false;                       /* المستخدم بيقول فيه بيت ستارة ولا لأ */
+const nBox=()=>BOXON?3:0;              /* طرف يمين · طرف شمال · الحافة السفلية */
+const IP=()=>I_BOX+nBox();             /* بداية نقط ورقة A4 */
 let SMODE='a4', KNOWN={side:'w',cm:0};
 const cv={width:0,height:0};
 function srcPixels(){
@@ -1291,6 +1306,15 @@ function solve(winP,opts){
   if(opts.floor) o.sill=perp(pl(opts.floor),R[3],R[2]);
   if(opts.ceil)  o.drop=perp(pl(opts.ceil), R[0],R[1]);
   /* المسافة الأفقية للحائط: إحداثي x في مستوى الحائط، والشباك من 0 لـ 1 */
+  /* بيت الستارة: العرض من الفرق الأفقي، والارتفاع من الفرق الرأسي.
+     كله في مستوى الحيطة — فالنقط لازم تتحط عند فتحة البيت عند السقف.
+     العمق (خانة ١٢) مستحيل يتقاس من صورة واحدة، فبيفضل إدخال يدوي. */
+  if(opts.boxR&&opts.boxL) o.boxW=Math.abs(pl(opts.boxR)[0]-pl(opts.boxL)[0])*scale;
+  if(opts.boxB){
+    const yb=pl(opts.boxB)[1];
+    if(opts.ceil)  o.boxH=(yb-pl(opts.ceil)[1])*scale;    /* من السقف لحد حافة البيت */
+    if(opts.floor) o.boxF=(pl(opts.floor)[1]-yb)*scale;   /* من الأرض لحافة البيت */
+  }
   if(opts.wallR){ const g=(pl(opts.wallR)[0]-1)*scale; if(g>0) o.gapR=g; }
   if(opts.wallL){ const g=(0-pl(opts.wallL)[0])*scale; if(g>0) o.gapL=g; }
   if(o.gapR!=null&&o.gapL!=null) o.wallW=o.gapR+o.W+o.gapL;
@@ -1366,9 +1390,19 @@ const STEPS=[
   {n:'السقف فوق الشباك',h:'عشان خانة ٧ و٥ — تقدر تتخطاها',d:'ce',opt:1},
   {n:'حد الحائط من اليمين',h:'عشان خانة ٣ — تقدر تتخطاها',d:'wr',opt:1},
   {n:'حد الحائط من الشمال',h:'عشان خانة ٤ — تقدر تتخطاها',d:'wl',opt:1},
+  {n:'طرف بيت الستارة — يمين',h:'عند فتحة البيت في السقف · خانة ١٠',d:'br',opt:1,box:1},
+  {n:'طرف بيت الستارة — شمال',h:'الطرف التاني · خانة ١٠',d:'bl',opt:1,box:1},
+  {n:'الحافة السفلية لبيت الستارة',h:'أوطى حافة من جوه · خانات ١١ و١٣',d:'bb',opt:1,box:1},
   {n:'ركن ورقة A4 — ١',h:'الورقة لازم تكون في نفس مستوى الشباك',d:'p'},
   {n:'ركن الورقة — ٢',h:'',d:'p'},{n:'ركن الورقة — ٣',h:'',d:'p'},{n:'ركن الورقة — ٤',h:'',d:'p'}];
-const nPts=()=>SMODE==='a4'?12:8;
+const nPts=()=>IP()+(SMODE==='a4'?4:0);
+/* الخطوات اللي هتظهر فعلًا: الأساسية + بيت الستارة لو مفعّل + الورقة لو المقياس بالورقة */
+function stepList(){
+  const base=STEPS.filter(x=>!x.box&&x.d!=='p');
+  const box =STEPS.filter(x=>x.box);
+  const pap =STEPS.filter(x=>x.d==='p');
+  return base.concat(BOXON?box:[], SMODE==='a4'?pap:[]);
+}
 function miniDia(kind){
   const b='<rect x="14" y="10" width="72" height="50" rx="2" fill="none" stroke="#7C8CA0" stroke-width="2"/>';
   const dot=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="7" fill="#A87C2A"/>';
@@ -1377,7 +1411,10 @@ function miniDia(kind){
     ce:'<line x1="6" y1="5" x2="94" y2="5" stroke="#0B8A5C" stroke-width="3"/>'+dot(50,5),
     wr:'<line x1="96" y1="4" x2="96" y2="66" stroke="#7B4FA8" stroke-width="3"/>'+dot(96,35),
     wl:'<line x1="4" y1="4" x2="4" y2="66" stroke="#7B4FA8" stroke-width="3"/>'+dot(4,35),
-    p:'<rect x="60" y="22" width="22" height="30" fill="#E9F0FD" stroke="#2158C9" stroke-width="2"/>'};
+    p:'<rect x="60" y="22" width="22" height="30" fill="#E9F0FD" stroke="#2158C9" stroke-width="2"/>',
+    br:'<rect x="10" y="4" width="80" height="13" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'+dot(90,10),
+    bl:'<rect x="10" y="4" width="80" height="13" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'+dot(10,10),
+    bb:'<rect x="10" y="4" width="80" height="13" fill="#FBF3DE" stroke="#A87C2A" stroke-width="2"/>'+dot(50,17)};
   return '<svg viewBox="0 0 100 70">'+b+(m[kind]||'')+'</svg>';
 }
 
@@ -1405,8 +1442,9 @@ function clampPan(){
   MX=Math.min(mgx, Math.max(CW()-dw-mgx, MX));
   MY=Math.min(mgy, Math.max(CH()-dh-mgy, MY));
 }
-const PCOL=i=>i<4?'#E8B730':i<6?'#2FBF7E':i<8?'#A981E0':'#4FA3F5';
-const PTAG=i=>i<4?String(i+1):i===4?'أرض':i===5?'سقف':i===6?'حيطة ي':i===7?'حيطة ش':'A'+(i-7);
+const PCOL=i=>i<4?'#E8B730':i<6?'#2FBF7E':i<8?'#A981E0':i<IP()?'#E07A3F':'#4FA3F5';
+const PTAG=i=>i<4?String(i+1):i===4?'أرض':i===5?'سقف':i===6?'حيطة ي':i===7?'حيطة ش'
+  :i<IP()?['بيت ي','بيت ش','بيت ↓'][i-I_BOX]:'A'+(i-IP()+1);
 function mDraw(){
   if(!im) return;
   const g=mx2; g.setTransform(DPR,0,0,DPR,0,0);
@@ -1423,7 +1461,7 @@ function mDraw(){
     g.strokeStyle='#E8B730'; g.lineWidth=2.4; g.stroke();
     if(a.length===4){g.fillStyle='rgba(232,183,48,.13)'; g.fill();}
   }
-  const pp=P.slice(I_PAPER,I_PAPER+4).filter(Boolean);
+  const pp=P.slice(IP(),IP()+4).filter(Boolean);
   if(pp.length>1){
     const a=(pp.length===4?oq(pp):pp).map(toC);
     g.beginPath(); a.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));
@@ -1457,7 +1495,7 @@ function mMag(){
 }
 function mUI(){
   const n=nPts(), at=(mSel>=0?mSel:P.length);
-  const st=STEPS[Math.min(at,STEPS.length-1)];
+  const SL=stepList(), st=SL[Math.min(at,SL.length-1)]||SL[SL.length-1];
   const done=P.length>=n;
   $('mTtl').firstChild.textContent = mSel>=0?'تعديل نقطة':'تحديد النقط';
   $('mSub').textContent = mSel>=0 ? PTAG(mSel) : (Math.min(P.length+1,n)+' من '+n);
@@ -1526,6 +1564,16 @@ function selectPoint(i){
   const p=P[i];
   MX=CW()/2-p[0]*MZ; MY=CH()/2-p[1]*MZ; clampPan(); mUI();
 }
+$('mBox').addEventListener('change',e=>{
+  BOXON=e.target.checked;
+  /* لو اتقفل نشيل نقط البيت ونرجّع الورقة مكانها */
+  if(!BOXON&&P.length>I_BOX){
+    const pap=P.slice(I_BOX+3);
+    P.length=I_BOX;
+    pap.forEach(q=>P.push(q));
+  }
+  mSel=-1; mUI(); recalc();
+});
 $('mZoom').addEventListener('input',e=>{
   const base=Math.min(CW()/cv.width,CH()/cv.height);
   const old=MZ, c=[CW()/2,CH()/2];
@@ -1577,7 +1625,7 @@ function snapshotMeasured(){
     };
     const wp=P.slice(0,4).filter((q,i)=>q&&!skip[i]);
     quad(wp.length===4?oq(wp):wp,'#E8B730','rgba(232,183,48,.13)');
-    const pp=P.slice(I_PAPER,I_PAPER+4).filter(Boolean);
+    const pp=P.slice(IP(),IP()+4).filter(Boolean);
     quad(pp.length===4?oq(pp):pp,'#2F86E8','rgba(47,134,232,.16)');
     P.forEach((q,i)=>{
       if(!q||skip[i])return;
@@ -1611,8 +1659,11 @@ function recalc(){
       floor:(P[I_FLOOR]&&!skip[I_FLOOR])?P[I_FLOOR]:null,
       ceil:(P[I_CEIL]&&!skip[I_CEIL])?P[I_CEIL]:null,
       wallR:(P[I_WALLR]&&!skip[I_WALLR])?P[I_WALLR]:null,
-      wallL:(P[I_WALLL]&&!skip[I_WALLL])?P[I_WALLL]:null};
-    if(SMODE==='a4'){ if(P.length>=12) o.paper=P.slice(I_PAPER,I_PAPER+4); }
+      wallL:(P[I_WALLL]&&!skip[I_WALLL])?P[I_WALLL]:null,
+      boxR:(BOXON&&P[I_BOX]  &&!skip[I_BOX])  ?P[I_BOX]  :null,
+      boxL:(BOXON&&P[I_BOX+1]&&!skip[I_BOX+1])?P[I_BOX+1]:null,
+      boxB:(BOXON&&P[I_BOX+2]&&!skip[I_BOX+2])?P[I_BOX+2]:null};
+    if(SMODE==='a4'){ if(P.length>=IP()+4) o.paper=P.slice(IP(),IP()+4); }
     else if(KNOWN.cm>0) o.known={side:KNOWN.side,cm:KNOWN.cm};
     if(o.paper||o.known) MEAS=solve(P.slice(0,4),o);
   }
@@ -1635,6 +1686,9 @@ function paintResult(){
     if(m.gapR!=null) S2.push(['من الحائط يمين (٣)',(m.gapR/100).toFixed(2)+' م','au']);
     if(m.gapL!=null) S2.push(['من الحائط شمال (٤)',(m.gapL/100).toFixed(2)+' م','au']);
     if(m.wallW!=null) S2.push(['عرض الحائط (١)',(m.wallW/100).toFixed(2)+' م','au']);
+    if(m.boxW!=null) S2.push(['عرض بيت الستارة (١٠)',(m.boxW/100).toFixed(2)+' م','au']);
+    if(m.boxH!=null) S2.push(['ارتفاع بيت الستارة (١١)',Math.round(m.boxH)+' سم','au']);
+    if(m.boxF!=null) S2.push(['من الأرض للبيت (١٣)',(m.boxF/100).toFixed(2)+' م','au']);
   }
   $('rstats').innerHTML=S2.map(x=>'<div class="stat '+x[2]+'"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div></div>').join('');
   let w='';
@@ -1680,7 +1734,7 @@ function paintResult(){
 }
 document.querySelectorAll('input[name="sm2"]').forEach(r=>r.addEventListener('change',e=>{
   SMODE=e.target.value;
-  if(SMODE==='known'&&P.length>I_PAPER) P.length=I_PAPER;
+  if(SMODE==='known'&&P.length>IP()) P.length=IP();
   recalc(); }));
 $('kVal').addEventListener('input',e=>{ KNOWN.cm=num(e.target.value)*100; recalc(); });
 $('kSide').addEventListener('change',e=>{ KNOWN.side=e.target.value; recalc(); });
@@ -1690,8 +1744,8 @@ $('bFind').addEventListener('click',()=>{
   c.getContext('2d').drawImage(im,0,0,c.width,c.height);
   const r=findPaper(c);
   if(!r){ alert('مالقيناش ورقة A4 — حط أركانها بإيدك من شاشة القياس.'); return; }
-  while(P.length<I_PAPER){ skip[P.length]=true; P.push([0,0]); }
-  P.length=I_PAPER; r.quad.forEach(q=>P.push([q[0],q[1]])); recalc(); });
+  while(P.length<IP()){ skip[P.length]=true; P.push([0,0]); }
+  P.length=IP(); r.quad.forEach(q=>P.push([q[0],q[1]])); recalc(); });
 document.addEventListener('click',e=>{
   if(e.target.id==='bRetake2') openCam();
   if(e.target.id==='bFix'){ $('meas').classList.add('on'); fitStage(); mUI(); }
@@ -1713,6 +1767,9 @@ $('bUse').addEventListener('click',()=>{
   if(m.gapR!=null&&set('gapR',m.gapR/100)) f.push('من الحائط يمين');
   if(m.gapL!=null&&set('gapL',m.gapL/100)) f.push('من الحائط شمال');
   if(m.wallW!=null&&set('wallW',m.wallW/100)) f.push('عرض الحائط');
+  if(m.boxW!=null&&set('boxW',m.boxW/100)) f.push('عرض بيت الستارة');
+  if(m.boxH!=null&&set('boxH',Math.round(m.boxH))) f.push('ارتفاع بيت الستارة');
+  if(m.boxF!=null&&set('boxF',m.boxF/100)) f.push('من الأرض للبيت');
   let extra='';
   if(KIND_OK&&KIND){
     const el=document.querySelector('input[name="winKind"][value="'+KIND.kind+'"]');
