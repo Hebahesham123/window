@@ -10,13 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#EDF0F5; --card:#FFF; --ink:#0B1420; --ink2:#3D4C60; --mut:#7C8CA0;
-  --line:#E4E9F0; --line2:#CFD8E3;
-  --gold:#A87C2A; --gold2:#C79B45; --deep:#111C2B;
-  --ok:#0B8A5C;  --okBg:#E6F6EF;
-  --need:#B37C06; --needBg:#FEF5E0;
-  --auto:#2158C9; --autoBg:#E9F0FD;
-  --err:#CE2C2C;  --errBg:#FDEDED;
+  --bg:#F2F4F8; --card:#FFF; --ink:#111827; --ink2:#374151; --mut:#6B7280;
+  --line:#E5E7EB; --line2:#D1D5DB;
+  --gold:#9A7420; --gold2:#D4A843; --deep:#1F2937;
+  --ok:#047857;  --okBg:#ECFDF5;  --okLn:#A7F3D0;
+  --need:#B45309; --needBg:#FFFBEB; --needLn:#FDE68A;
+  --auto:#1D4ED8; --autoBg:#EFF6FF; --autoLn:#BFDBFE;
+  --err:#B91C1C;  --errBg:#FEF2F2;  --errLn:#FECACA;
   --r:16px; --r2:12px;
   --sh1:0 1px 2px rgba(11,20,32,.05);
   --sh2:0 2px 4px rgba(11,20,32,.05),0 10px 26px rgba(11,20,32,.07);
@@ -218,7 +218,12 @@ input[readonly]{cursor:default}
 .mhint .tx span{font-size:12px;color:var(--mut);display:block;margin-top:2px;line-height:1.5}
 .mrow{display:flex;gap:8px;align-items:center}
 .mrow .btn{flex:none}
-.mrow .btn.big{flex:1;min-height:52px;font-size:15.5px;font-weight:800;border-radius:14px}
+.mrow .btn.big{flex:1;min-height:54px;font-size:16px;font-weight:800;border-radius:14px}
+.mrow .btn{min-height:54px;font-size:14px;border-radius:14px;padding:10px 14px}
+.btn.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.done:hover{filter:brightness(1.07)}
+.btn.wide{width:100%;margin-top:9px;min-height:50px;font-size:15px;font-weight:800;border-radius:14px}
+.btn.wide[disabled]{background:var(--card);border-color:var(--line2);color:var(--mut);opacity:1}
 .zrow{display:flex;gap:9px;align-items:center;margin-bottom:11px}
 .zrow input[type=range]{flex:1;min-height:0;padding:0;border:0;background:transparent;-webkit-appearance:none}
 .zrow input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:99px;background:var(--line2)}
@@ -285,6 +290,7 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 
 /* ============ رسم المعاينة ============ */
 .diag{background:#F7F9FC;border:1px solid var(--line);border-radius:var(--r2);padding:8px}
+.diag svg{max-width:100%}
 .diag svg{width:100%;height:auto;display:block}
 .diag .hot{cursor:pointer}
 .diag .hot:hover circle{fill:#F6EACB}
@@ -315,9 +321,11 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 .pf textarea{text-align:right;min-height:52px;padding:8px}
 .pf select{padding-inline-start:26px;background-position:calc(9px) calc(50% - 2px),calc(14px) calc(50% - 2px)}
 .pf input:focus,.pf select:focus,.pf textarea:focus{box-shadow:inset 0 0 0 2.5px var(--gold);outline:none}
-.pf input.need,.pf select.need{background:var(--needBg);box-shadow:inset 0 0 0 1.5px #D9A93A}
-.pf input.filled,.pf select.filled{background:var(--okBg)}
-.pf input.auto,.pf input.calc{background:var(--autoBg);font-weight:800}
+.pf input.need,.pf select.need{background:var(--needBg);
+  box-shadow:inset 3px 0 0 var(--need),inset 0 0 0 1px var(--needLn)}
+.pf input.filled,.pf select.filled{background:var(--okBg);box-shadow:inset 3px 0 0 var(--ok)}
+.pf input.auto,.pf input.calc{background:var(--autoBg);font-weight:800;
+  box-shadow:inset 3px 0 0 var(--auto)}
 .pf input.calc{font-size:16px;color:var(--auto)}
 .pf input.bad{background:var(--errBg);box-shadow:inset 0 0 0 1.5px var(--err)}
 .pf input[readonly]{cursor:default}
@@ -345,7 +353,7 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 .ck input:checked + i{background:var(--deep);border-color:var(--deep);color:#fff}
 .ck input:checked + i::before{content:'✔';font-weight:900;font-size:11px}
 .cks{display:flex;flex-wrap:wrap;gap:6px 16px;padding:7px 9px;align-items:center}
-.cks.need{background:var(--needBg);box-shadow:inset 0 0 0 1.5px #D9A93A}
+.cks.need{background:var(--needBg);box-shadow:inset 3px 0 0 var(--need)}
 /* عناوين الأقسام */
 .psec{margin:11px 0 4px;font-weight:900;font-size:13px;border-bottom:1.6px solid #111;
   padding-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -440,7 +448,46 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 .fbmask.on{display:block}
 
 /* ============ موبايل ============ */
+/* ===== تحسينات الموبايل ===== */
 @media(max-width:700px){
+  /* ورشة القياس: الصورة تاخد أكبر مساحة واللوحة تحت تبقى مرتبة */
+  .meas .mtop{padding:calc(8px + env(safe-area-inset-top,0px)) 10px 8px}
+  .meas .mtop .ttl{font-size:12.5px}
+  .msheet{border-radius:18px 18px 0 0;padding:10px 12px calc(10px + var(--safeB))}
+  .msheet .prog{gap:3px;margin-bottom:9px}
+  .msheet .prog i{height:5px}
+  .mhint{gap:9px;margin-bottom:9px}
+  .mhint .dia{width:52px;height:42px}
+  .mhint .tx b{font-size:15px}
+  .mhint .tx span{font-size:11.5px}
+  .boxsw{margin-bottom:9px}
+  .sw{padding:9px 11px;font-size:12.5px}
+  .zrow{margin-bottom:9px;gap:8px}
+  .mrow{gap:7px}
+  .mrow .btn{min-height:50px;font-size:13px;padding:8px 10px}
+  .mrow .btn.big{min-height:52px;font-size:15px}
+  .btn.wide{min-height:46px;font-size:14px;margin-top:8px}
+  .mag{width:84px;height:84px;top:calc(50px + env(safe-area-inset-top,0px))}
+  .reticle .rx{width:84px;height:84px} .reticle .ring{inset:25px}
+
+  /* الشاشة الرئيسية */
+  .way{padding:14px;gap:11px}
+  .way .ic{width:40px;height:40px;font-size:19px;border-radius:11px}
+  .way b{font-size:14.5px} .way span{font-size:12px}
+  .hero p{font-size:13px}
+  .msg{font-size:12.5px;padding:10px 12px;gap:8px}
+  .stat{padding:10px 11px} .stat .v{font-size:19px}
+
+  /* الشريط السفلي */
+  .foot{padding:9px 12px calc(9px + var(--safeB))}
+  .foot .in{gap:9px}
+  .foot .tx b{font-size:12.5px}
+  .foot .btn{padding:10px 13px;min-height:44px;font-size:13.5px}
+
+  /* التبويبات */
+  .tabs{gap:5px} .tab{padding:8px 4px;border-radius:12px}
+  .tab span{font-size:11px} .tab .n{width:19px;height:19px;font-size:10.5px}
+
   .wrap{padding:0 9px}
   .paper{padding:8px;border-radius:12px}
   .pf{padding:7px;border-width:1.3px}
@@ -520,19 +567,19 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
 <section id="s0">
   <div class="hero">
     <h1>قِس الشباك من صورة</h1>
-    <p>صوّر الشباك، حدّد أركانه بدقة بالشعيرة، والباقي بيتحسب لوحده ويملأ المعاينة.</p>
+    <p>صوّر الشباك، حرّك الصورة تحت الشعيرة وثبّت كل ركن، والباقي بيتحسب لوحده ويملأ المعاينة.</p>
   </div>
   <div id="sup"></div>
   <div class="ways">
     <button class="way" id="wCam" type="button">
       <span class="ic">📷</span>
-      <span><b>افتح الكاميرا</b><span>صوّر الشباك بنفسك — من غير التقاط تلقائي.</span></span></button>
+      <span><b>افتح الكاميرا</b><span>صوّر الشباك بنفسك، والتصوير بإيدك مش تلقائي.</span></span></button>
     <button class="way" id="wGal" type="button">
       <span class="ic">🖼️</span>
       <span><b>صورة من الاستوديو</b><span>عندك صورة للشباك جاهزة؟ اختارها من الموبايل.</span></span></button>
     <button class="way" id="wAR" type="button"><span class="tg" id="tgAR">…</span>
       <span class="ic">📐</span>
-      <span><b>قياس مباشر بالـ AR</b><span>أندرويد + Chrome — بيلتقط النقطة لوحده لما تثبت.</span></span></button>
+      <span><b>قياس مباشر بالـ AR</b><span>أندرويد + Chrome — ثبّت الدايرة على الركن وهو بياخدها لوحده.</span></span></button>
     <button class="way" id="wDemo" type="button">
       <span class="ic">▶️</span>
       <span><b>جرّب على مثال جاهز</b><span>صورة مقاساتها معروفة — تشوف كل خطوة قبل ما تنزل الموقع.</span></span></button>
@@ -649,7 +696,7 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
     </table>
 
     <table style="margin-top:6px"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tr>
-      <td class="pbox"><b>رسم توضيحي للوحدة — اضغط أي رقم</b><div class="in2"><div id="diag"></div></div></td>
+      <td class="pbox"><b>رسم توضيحي للوحدة — اضغط أي رقم</b><div class="in2" style="padding:6px"><div class="diag" id="diag" style="width:100%;background:transparent;border:0;padding:0"></div></div></td>
       <td class="pbox"><b><span class="no">١٤</span> صورة الشباك</b>
         <div class="in2"><div class="phld" id="picPh">اضغط «اختر صورة» وهتظهر هنا</div>
           <img id="picImg" style="display:none">
@@ -786,7 +833,7 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
   <div class="mtop">
     <button class="btn s" id="mX" type="button">✕</button>
     <div class="ttl" id="mTtl">—<em id="mSub"></em></div>
-    <button class="btn s" id="mDone" type="button">تم</button>
+    <button class="btn s" id="mDone" type="button">تم ✓</button>
   </div>
   <div class="stage" id="stage">
     <canvas id="mc"></canvas>
@@ -803,10 +850,11 @@ td.calc.pend{color:var(--need);background:var(--needBg);font-size:11px;font-weig
       <input type="range" id="mZoom" min="100" max="900" value="100">
       <span class="zl" id="mZl">١×</span></div>
     <div class="mrow">
-      <button class="btn" id="mUndo" type="button">↶</button>
-      <button class="btn" id="mSkip" type="button">تخطّي</button>
+      <button class="btn" id="mUndo" type="button"><span class="ic">↶</span>تراجع</button>
+      <button class="btn" id="mSkip" type="button">تخطّي ›</button>
       <button class="btn p big" id="mSet" type="button">ثبّت النقطة</button>
     </div>
+    <button class="btn done wide" id="mDone2" type="button">تم — كمّل</button>
   </div>
 </div>
 
@@ -1539,6 +1587,15 @@ function mUI(){
     (done?'راجع أي نقطة بالضغط عليها، أو اضغط «تم»':st.h);
   $('mDia').innerHTML=miniDia(st.d);
   $('mSet').textContent = mSel>=0?'حدّث النقطة':'ثبّت النقطة';
+  const d2=$('mDone2');
+  if(d2){
+    const ready=done&&!!MEAS;
+    d2.disabled=!done;
+    d2.classList.toggle('done',ready);
+    d2.textContent = ready?'تم ✓ — كمّل'
+      : done?'تم — لسه محتاج مصدر مقياس'
+      : 'باقي '+(n-P.length)+' نقطة';
+  }
   $('mSet').disabled = (mSel<0 && done);
   $('mSkip').style.display = (mSel<0 && !done && st.opt)?'':'none';
   $('mUndo').disabled = P.length===0;
@@ -1627,6 +1684,7 @@ $('mUndo').addEventListener('click',()=>{
   if(mSel>=0){mSel=-1;} else { const i=P.length-1; delete skip[i]; P.pop(); }
   mUI(); recalc(); });
 $('mX').addEventListener('click',()=>{ $('meas').classList.remove('on'); });
+$('mDone2').addEventListener('click',()=>$('mDone').click());
 $('mDone').addEventListener('click',()=>{
   $('meas').classList.remove('on'); recalc();
   if(MM==='box'){
