@@ -1128,7 +1128,10 @@ function paintAcc(o){
   if(!t.dataset.b){
     t.innerHTML='<thead><tr><th>البند</th>'+ACC.map(r=>'<th>'+r[0]+'</th>').join('')+'</tr></thead><tbody>'
       +'<tr><td style="font-weight:800;font-size:11.5px">الكود</td>'
-      +ACC.map(r=>'<td><input data-ac="'+r[1]+'"></td>').join('')+'</tr>'
+      +ACC.map(r=>'<td><div style="display:flex;gap:2px;align-items:center">'
+        +'<input data-ac="'+r[1]+'" style="flex:1">'
+        +'<button class="btn xs pickbtn noP" data-pk="'+r[1]+'" data-lb="'+r[0].replace(/<[^>]+>/g,' ').trim()+'" type="button" title="اختر من الفهرس">⌕</button>'
+        +'</div></td>').join('')+'</tr>'
       +'<tr><td style="font-weight:800;font-size:11.5px">عدد / متر</td>'
       +ACC.map(r=>'<td><input data-aq="'+r[1]+'" type="number" min="0" step="0.25"></td>').join('')+'</tr></tbody>';
     t.querySelectorAll('[data-aq]').forEach(i=>i.addEventListener('input',e=>{
@@ -1136,6 +1139,10 @@ function paintAcc(o){
       e.target.classList.remove('auto'); e.target.classList.toggle('filled',!!e.target.value);}));
     t.querySelectorAll('[data-ac]').forEach(i=>i.addEventListener('input',e=>{
       AC[e.target.dataset.ac]=e.target.value; e.target.classList.toggle('filled',!!e.target.value);}));
+    t.querySelectorAll('[data-pk]').forEach(b=>b.addEventListener('click',ev=>{
+      ev.preventDefault(); ev.stopPropagation();
+      openAcc(t.querySelector('[data-ac="'+b.dataset.pk+'"]'), b.dataset.pk, b.dataset.lb);
+    },true));
     t.dataset.b='1';
   }
   ACC.forEach(r=>{const k=r[1], i=t.querySelector('[data-aq="'+k+'"]'); if(AM[k])return;
@@ -1144,10 +1151,19 @@ function paintAcc(o){
 const TOKR=['فرانشة','شرابة لم جنب','شرابة ديكور','حزام'], TK={};
 (function(){const t=$('tok');
   t.innerHTML='<thead><tr><th>البند</th>'+TOKR.map(r=>'<th>'+r+'</th>').join('')+'</tr></thead><tbody>'
-    +'<tr><td style="font-weight:800;font-size:11.5px">الكود</td>'+TOKR.map((r,i)=>'<td><input data-t="c'+i+'"></td>').join('')+'</tr>'
+    +'<tr><td style="font-weight:800;font-size:11.5px">الكود</td>'
+      +TOKR.map((r,i)=>'<td><div style="display:flex;gap:2px;align-items:center">'
+        +'<input data-t="c'+i+'" style="flex:1">'
+        +'<button class="btn xs pickbtn noP" data-tk="'+i+'" data-lb="'+r+'" type="button" title="اختر من الفهرس">⌕</button>'
+        +'</div></td>').join('')+'</tr>'
     +'<tr><td style="font-weight:800;font-size:11.5px">عدد / متر</td>'+TOKR.map((r,i)=>'<td><input data-t="q'+i+'" type="number" min="0" step="0.25"></td>').join('')+'</tr></tbody>';
   t.querySelectorAll('[data-t]').forEach(i=>i.addEventListener('input',e=>{
-    TK[e.target.dataset.t]=e.target.value; e.target.classList.toggle('filled',!!e.target.value);}));})();
+    TK[e.target.dataset.t]=e.target.value; e.target.classList.toggle('filled',!!e.target.value);}));
+  t.querySelectorAll('[data-tk]').forEach(b=>b.addEventListener('click',ev=>{
+    ev.preventDefault(); ev.stopPropagation();
+    const key=b.dataset.lb==='فرانشة'?'fransha':'';
+    openAcc(t.querySelector('[data-t="c'+b.dataset.tk+'"]'), key, b.dataset.lb);
+  },true));})();
 
 /* ════════ رسم المعاينة المرقّم ════════ */
 (function(){
@@ -2381,6 +2397,7 @@ $('wDemo').addEventListener('click',()=>{
    الفهرس (materials.json) متسحوب من API الفواتير ومشحون مع الصفحة،
    فالبحث بيشتغل من غير نت ومن غير ما التوكن يبقى على الموبايل. */
 let MATS=null, MATQ='', MATF='', MATROW=null;
+let MATMODE='fab', MATB='', MATTARGET=null;
 const T_AR={light:'خفيف',heavy:'تقيل',blackout:'بلاك اوت',accessory:'إكسسوار'};
 async function loadMats(){
   if(MATS) return MATS;
@@ -2388,7 +2405,14 @@ async function loadMats(){
     const r=await fetch('materials.json',{cache:'force-cache'});
     if(!r.ok) throw new Error(r.status);
     const j=await r.json();
-    MATS=j.items||[]; MATS._built=j.built||''; 
+    /* الفهرس متجمّع: كل منتج ومعاه ألوانه — بنفرده هنا للبحث */
+    MATS=[];
+    (j.items||[]).forEach(g=>{
+      const base={n:g.n,code:g.code,p:g.p,t:g.t,b:g.b||'',cat:g.cat||''};
+      if(g.cols&&g.cols.length) g.cols.forEach(c=>MATS.push(Object.assign({c:c},base)));
+      else MATS.push(Object.assign({c:''},base));
+    });
+    MATS._built=j.built||''; 
   }catch(e){ MATS=[]; MATS._err=e.message; }
   return MATS;
 }
@@ -2401,9 +2425,13 @@ function mpkRender(){
   }
   const q=MATQ.trim().toLowerCase();
   let list=MATS;
-  if(MATF) list=list.filter(x=>x.t===MATF);
+  if(MATMODE==='acc'){ list=list.filter(x=>x.t==='acc'||x.t==='ready');
+    if(MATB) list=list.filter(x=>x.b===MATB); }
+  else { list=list.filter(x=>x.t!=='acc');
+    if(MATF) list=list.filter(x=>x.t===MATF); }
   if(q) list=list.filter(x=>(x.n||'').toLowerCase().includes(q)
                           ||(x.c||'').toLowerCase().includes(q)
+                          ||(x.code||'').toLowerCase().includes(q)
                           ||(x.cat||'').toLowerCase().includes(q));
   const total=list.length;
   list=list.slice(0,80);
@@ -2412,17 +2440,26 @@ function mpkRender(){
     return;
   }
   L.innerHTML=list.map((x,i)=>'<div class="it" data-i="'+MATS.indexOf(x)+'">'
-    +'<div class="nm"><b>'+esc(x.n)+'</b><span>'+esc(T_AR[x.t]||x.t)+(x.cat?' · '+esc(x.cat):'')+'</span></div>'
+    +'<div class="nm"><b>'+esc(x.n)+'</b><span>كود '+esc(x.code||'—')
+      +(x.cat?' · '+esc(x.cat):'')+(x.p?' · '+x.p+' ج.م':'')+'</span></div>'
     +(x.c?'<div class="cl">'+esc(x.c)+'</div>':'')+'</div>').join('')
     +(total>80?'<div class="empty">فيه '+(total-80)+' نتيجة كمان — دوّر باسم أدق.</div>':'');
   L.querySelectorAll('.it').forEach(el=>el.addEventListener('click',()=>{
-    const m=MATS[+el.dataset.i]; if(!m||!MATROW) return;
-    MATROW.name=m.n; if(m.c) MATROW.code=m.c;
-    if(!MATROW.type && m.t!=='accessory') MATROW.type=m.t;
+    const m=MATS[+el.dataset.i]; if(!m) return;
+    if(MATMODE==='acc'){
+      if(MATTARGET){ MATTARGET.value=m.code||'';
+        MATTARGET.dispatchEvent(new Event('input',{bubbles:true})); }
+      closePick(); return;
+    }
+    if(!MATROW) return;
+    MATROW.name=m.n+(m.c?' — '+m.c:'');   /* الصنف ومعاه كود اللون */
+    if(m.code) MATROW.code=m.code;        /* الكود الحقيقي من أودو */
+    if(!MATROW.type && ['light','heavy','blackout'].indexOf(m.t)>-1) MATROW.type=m.t;
     closePick(); drawRows();
   }));
 }
 function openPick(L){
+  MATMODE='fab'; MATTARGET=null;
   MATROW=L; MATQ=''; MATF=L.type||'';
   $('mpkQ').value=''; $('mpk').classList.add('on');
   $('mpkC').innerHTML=[['','الكل'],['light','خفيف'],['heavy','تقيل'],['blackout','بلاك اوت']]
@@ -2436,7 +2473,25 @@ function openPick(L){
     $('mpkT').textContent='اختر الخامة'+(MATS._built?' · فهرس '+MATS._built:'');
     mpkRender(); setTimeout(()=>$('mpkQ').focus(),80); });
 }
-function closePick(){ $('mpk').classList.remove('on'); MATROW=null; }
+function closePick(){ $('mpk').classList.remove('on'); MATROW=null; MATTARGET=null; }
+/* منتقي الإكسوار: بيتفتح من خانة الكود في جدول الإكسوار أو الطقة */
+const ACCB={wood:'wood',rail:'rail',kabRail:'kabRail',kabPipe:'kabRail',
+  shammaa:'shammaa',masoura:'masoura',nehaya:'nehaya'};
+function openAcc(input,key,label){
+  MATMODE='acc'; MATROW=null; MATTARGET=input;
+  MATB=ACCB[key]||''; MATQ=''; MATF='';
+  $('mpkQ').value=''; $('mpk').classList.add('on');
+  const chips=[['','كل الإكسوار']].concat(MATB?[[MATB,label]]:[]);
+  $('mpkC').innerHTML=chips.map(c=>'<button type="button" data-b="'+c[0]+'"'
+    +((MATB===c[0])?' class="on"':'')+'>'+c[1]+'</button>').join('');
+  $('mpkC').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    MATB=b.dataset.b;
+    $('mpkC').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    mpkRender();}));
+  $('mpkL').innerHTML='<div class="empty">بنحمّل الفهرس…</div>';
+  loadMats().then(()=>{ $('mpkT').textContent='اختر '+label;
+    mpkRender(); setTimeout(()=>$('mpkQ').focus(),80); });
+}
 $('mpkX').addEventListener('click',closePick);
 $('mpkQ').addEventListener('input',e=>{ MATQ=e.target.value; mpkRender(); });
 
@@ -2561,6 +2616,7 @@ $('fbPrev').addEventListener('click',()=>showField(FI-1));
 $('fbNext').addEventListener('click',()=>{ if(FI>=FL.length-1) closeField(); else showField(FI+1); });
 document.addEventListener('focusin',e=>{
   if(!isMob()) return;
+  if($('mpk').classList.contains('on')) return;   /* المنتقي مفتوح — سيبه */
   const el=e.target;
   if(!el.closest||!el.closest('.pf')) return;
   if(el.type==='file'||el.readOnly) return;
